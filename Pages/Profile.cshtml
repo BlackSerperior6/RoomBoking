@@ -1,0 +1,35 @@
+﻿@page
+@model RoomBooking.Pages.ProfileModel
+<div class="profile-form">
+    <h2>Профиль пользователя</h2>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">@Model.SuccessMessage</div>
+    }
+
+    <div class="form-group">
+        <label>Ваш логин</label>
+        <input asp-for="Login" class="form-control" readonly />
+    </div>
+    <li class="nav-item">
+        <a class="btn btn-primary" asp-area="" asp-page="/RoomControl/AddRoom">Добавить комнату</a>
+    </li>
+    <div class="col-sm-6 col-md-3">
+        <a class="btn btn-outline-danger w-100 h-100 py-3" asp-area="" asp-page="/RoomControl/DeleteRoom">Удалить комнату</a>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <form method="post" asp-page-handler="RedactRoom">
+            <button type="submit" class="btn btn-outline-warning w-100 h-100 py-3">Редактировать комнату</button>
+            <div class="form-group">
+                <label>Id комнаты</label>
+                <input asp-for="RoomId" class="form-control" />
+            </div>
+        </form>
+    </div>
+</div>
