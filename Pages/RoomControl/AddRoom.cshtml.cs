@@ -24,13 +24,13 @@ namespace RoomBooking.Pages.RoomControl
         public async Task<IActionResult> OnPostAsync()
         {
             string query = $"INSERT INTO \"Rooms\" (\"RoomId\", \"Description\", \"Address\", " +
-                       $"\"PricePerHour\", \"OwnerId\") VALUES (DEFAULT, @description, @address, @pricePerHour, @ownerId);";
+                       $"\"PricePerHour\", \"OwnerId\", \"version\") VALUES (DEFAULT, @description, @address, @pricePerHour, @ownerId, DEFAULT);";
 
             try
             {
                 if (string.IsNullOrWhiteSpace(Description) || string.IsNullOrWhiteSpace(Address))
                 {
-                    ErrorMessage = "Все поля должны быть заполнены!";
+                    ErrorMessage = "Р’СЃРµ РїРѕР»СЏ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅС‹!";
                     return Page();
                 }
 
@@ -46,11 +46,11 @@ namespace RoomBooking.Pages.RoomControl
             }
             catch (Exception ex) 
             {
-                ErrorMessage = $"Ошибка при выполнении запроса:\n{ex}";
+                ErrorMessage = $"РћС€РёР±РєР° РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё Р·Р°РїСЂРѕСЃР°:\n{ex}";
                 return Page();
             }
 
-            return RedirectToPage("/Profile", new {successMessage = "Комната успешно добавлена!" });
+            return RedirectToPage("/Profile", new {successMessage = "!" });
         }
     }
 }

@@ -14,7 +14,7 @@
     }
 
     <div class="form-group">
-        <label>Ваш логин</label>
+        <label>Ваш логин:</label>
         <input asp-for="Login" class="form-control" readonly />
     </div>
     <li class="nav-item">
@@ -32,4 +32,50 @@
             </div>
         </form>
     </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID комнаты</th>
+                <th>Описание</th>
+                <th>Адресс</th>
+                <th>Цена аренды за час</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var room in Model.UsersRooms)
+            {
+                <tr>
+                    <td>@room.RoomId</td>
+                    <td>@room.Description</td>
+                    <td>@room.Address</td>
+                    <td>@room.PricePerHour</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID брони</th>
+                <th>ID комнату</th>
+                <th>Время начала брони</th>
+                <th>Время конца брони</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model.UserBookings)
+            {
+                <tr>
+                    <td>@booking.BookingId</td>
+                    <td>@booking.RoomId</td>
+                    <td>@booking.StartTime</td>
+                    <td>@booking.EndTime</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
 </div>

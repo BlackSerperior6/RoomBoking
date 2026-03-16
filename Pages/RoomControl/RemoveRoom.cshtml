@@ -1,0 +1,18 @@
+@page
+@model RoomBooking.Pages.RoomControl.RemoveRoomModel
+<div class="removeRoom-form">
+    <h2>Удаление коматы</h2>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <form method="post">
+        <div class="form-group">
+            <label>ID комнаты</label>
+            <input asp-for="RoomId" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Удалить комнату</button>
+    </form>
+</div>
