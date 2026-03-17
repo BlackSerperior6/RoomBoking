@@ -1,0 +1,18 @@
+@page
+@model RoomBooking.Pages.BookingControls.CancelBookingModel
+<div class="makeBooking-form">
+    <h2>Отмена брони</h2>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    <form method="post">
+        <div class="form-group">
+            <label>ID брони</label>
+            <input asp-for="BookingId" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Отменить бронь</button>
+    </form>
+</div>
