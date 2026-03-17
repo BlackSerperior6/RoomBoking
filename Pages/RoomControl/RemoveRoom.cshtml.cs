@@ -12,6 +12,8 @@ namespace RoomBooking.Pages.RoomControl
         [BindProperty]
         public long RoomId { get; set; }
 
+        public string ErrorMessage { get; set; }
+
         public async Task<IActionResult> OnPostAsync()
         {
             string query = "DELETE FROM \"Rooms\" WHERE \"RoomId\" = @id";
@@ -23,7 +25,7 @@ namespace RoomBooking.Pages.RoomControl
 
                 command.Parameters.AddWithValue("@id", NpgsqlDbType.Text, RoomId);
 
-                var affectedRows = command.ExecuteNonQueryAsync();
+                var affectedRows = await command.ExecuteNonQueryAsync();
 
                 if (affectedRows == 0)
                 {

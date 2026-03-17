@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Npgsql;
+using NpgsqlTypes;
 using System.Security.Claims;
 
 namespace RoomBooking.Pages
@@ -12,7 +14,13 @@ namespace RoomBooking.Pages
         public string Login { get; set; }
 
         [BindProperty]
-        public decimal RoomId { get; set; }
+        public decimal RoomIdAdd { get; set; }
+
+        [BindProperty]
+        public decimal RoomIdDelete { get; set; }
+
+        [BindProperty]
+        public decimal RoomIdRedact { get; set; }
 
         public string ErrorMessage {get; set;}
 
@@ -22,62 +30,92 @@ namespace RoomBooking.Pages
 
         public List<RoomBookings> UserBookings {get; set;} = new List<RoomBookings>();
 
+        public List<RoomBookings> BookingsOfAUsersRoom {get; set;} = new List<RoomBookings>();
+
         public async Task<IActionResult> OnGetAsync(string successMessage = "", string errorMessage = "")
         {
             SuccessMessage = successMessage;
             ErrorMessage = errorMessage;
 
-            Login = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
-            long userId = long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
             string roomsQuery = "SELECT * FROM \"Rooms\" WHERE \"OwnerId\" = @ownerId";
+            string bookingQuery = "SELECT * FROM \"Bookings\" WHERE \"UserId\" = @userId";
+            string bookingForARoomQuery = "SELECT * FROM \"Bookings\" WHERE \"RoomId\" in (SELECT \"RoomId\" FROM \"Rooms\" WHERE " +
+                "\"OwnerId\" = @ownerId)";
 
             try
             {
+                Login = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+
+                long userId = long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
+
                 await using var connection = DatabaseConnectionFactory.CreateConnection();
-                await using (var command = new NpgsqlCommand(roomsQuery, connection))
+                await connection.OpenAsync();
+
+                await using var commandRoomsOfAUser = new NpgsqlCommand(roomsQuery, connection);
+
+                commandRoomsOfAUser.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, userId);
+
+                await using var roomReader = await commandRoomsOfAUser.ExecuteReaderAsync();
+
+                while (await roomReader.ReadAsync())
                 {
-                    command.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, userId);
+                    var roomId = roomReader.GetInt64(0);
 
-                    await using var reader = await command.ExecuteReaderAsync();
+                    var room = new Room(roomId, roomReader.GetString(1),
+                    roomReader.GetString(2), roomReader.GetDecimal(3));
 
-                    while (await reader.ReadAsync())
-                    {
-                        var room = new Room(reader.GetInt64(0), reader.GetString(1), 
-                        reader.GetString(2), reader.GetDecimal(3));
-
-                        UsersRooms.Add(room);
-                    }
+                    UsersRooms.Add(room);
                 }
 
-                string bookingQuery = "SELECT * FROM \"Bookings\" WHERE \"UserId\" = @userId";
-                await using var command = new NpgsqlCommand(bookingQuery, connection);
+                await roomReader.CloseAsync();
 
-                command.Parameters.AddWithValue(@userId, NpgsqlDbType.Bigint, userId);
+                await using var commandBookingsOfAUser = new NpgsqlCommand(bookingQuery, connection);
 
-                await using var reader = await command.ExecuteReaderAsync();
+                commandBookingsOfAUser.Parameters.AddWithValue("@userId", NpgsqlDbType.Bigint, userId);
 
-                while (await reader.ReadAsync())
+                await using var usersBookingsReader = await commandBookingsOfAUser.ExecuteReaderAsync();
+
+                while (await usersBookingsReader.ReadAsync())
                 {
-                    var booking = new RoomBookings(reader.GetInt64(0), reader.GetInt64(2), 
-                    reader.GetDateTime(3), reader.GetDateTime(4));
+                    var booking = new RoomBookings(usersBookingsReader.GetInt64(0), usersBookingsReader.GetInt64(2), 
+                    usersBookingsReader.GetDateTime(3), usersBookingsReader.GetDateTime(4));
 
                     UserBookings.Add(booking);
                 }
 
-                return Page();
+                await usersBookingsReader.CloseAsync();
 
+                await using var commandBookingsOfAUsersRoom = new NpgsqlCommand(bookingForARoomQuery, connection);
+
+                await using var bookingsOfAUsersRoomReader = await commandBookingsOfAUser.ExecuteReaderAsync();
+
+                while (await bookingsOfAUsersRoomReader.ReadAsync())
+                {
+                    var booking = new RoomBookings(bookingsOfAUsersRoomReader.GetInt64(0), bookingsOfAUsersRoomReader.GetInt64(2),
+                    bookingsOfAUsersRoomReader.GetDateTime(3), bookingsOfAUsersRoomReader.GetDateTime(4));
+
+                    BookingsOfAUsersRoom.Add(booking);
+                }
+
+                await bookingsOfAUsersRoomReader.CloseAsync();
             }
             catch (Exception e)
             {
                 ErrorMessage = $"Ошибка при получения профиля:\n{e}";
                 return Page();
-
             }
+
             return Page();
         }
 
+        public IActionResult OnPostAddRoom() 
+            => RedirectToPage("/RoomControl/AddRoom", new { id = RoomIdAdd });
+
+        public IActionResult OnPostDeleteRoom() 
+            => RedirectToPage("/RoomControl/DeleteRoom", new { id = RoomIdDelete });
+
         public IActionResult OnPostRedactRoom() 
-        => RedirectToPage("/RoomControl/AddRoom", new { id = ViewBookId });
+        => RedirectToPage("/RoomControl/RedactRoom", new { id = RoomIdRedact });
     }
 
     public class Room

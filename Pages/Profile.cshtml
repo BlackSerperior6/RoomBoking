@@ -21,19 +21,26 @@
         <a class="btn btn-primary" asp-area="" asp-page="/RoomControl/AddRoom">Добавить комнату</a>
     </li>
     <div class="col-sm-6 col-md-3">
-        <a class="btn btn-outline-danger w-100 h-100 py-3" asp-area="" asp-page="/RoomControl/DeleteRoom">Удалить комнату</a>
+        <a class="btn btn-outline-danger w-100 h-100 py-3" asp-area="" asp-page="/RoomControl/RemoveRoom">Удалить комнату</a>
     </div>
     <div class="col-sm-6 col-md-3">
         <form method="post" asp-page-handler="RedactRoom">
             <button type="submit" class="btn btn-outline-warning w-100 h-100 py-3">Редактировать комнату</button>
             <div class="form-group">
                 <label>Id комнаты</label>
-                <input asp-for="RoomId" class="form-control" />
+                <input asp-for="RoomIdRedact" class="form-control" />
             </div>
         </form>
     </div>
+    <li class="nav-item">
+        <a class="btn btn-primary" asp-area="" asp-page="/BookingControls/MakeBooking">Сделать бронь</a>
+    </li>
+    <li class="nav-item">
+        <a class="btn btn-primary" asp-area="" asp-page="/BookingControls/CancelBooking">Отменить бронь</a>
+    </li>
 
     <table class="table table-striped">
+        <caption>Ваши комнаты</caption>
         <thead>
             <tr>
                 <th>ID комнаты</th>
@@ -56,6 +63,7 @@
     </table>
 
     <table class="table table-striped">
+        <caption>Ваши брони</caption>
         <thead>
             <tr>
                 <th>ID брони</th>
@@ -66,6 +74,29 @@
         </thead>
         <tbody>
             @foreach (var booking in Model.UserBookings)
+            {
+                <tr>
+                    <td>@booking.BookingId</td>
+                    <td>@booking.RoomId</td>
+                    <td>@booking.StartTime</td>
+                    <td>@booking.EndTime</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <table class="table table-striped">
+        <caption>Брони ваших комнат</caption>
+        <thead>
+            <tr>
+                <th>ID брони</th>
+                <th>ID комнату</th>
+                <th>Время начала брони</th>
+                <th>Время конца брони</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model.BookingsOfAUsersRoom)
             {
                 <tr>
                     <td>@booking.BookingId</td>

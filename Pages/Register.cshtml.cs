@@ -30,6 +30,7 @@ namespace RoomBooking.Pages
                 }
 
                 await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await connection.OpenAsync();
 
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password);
 

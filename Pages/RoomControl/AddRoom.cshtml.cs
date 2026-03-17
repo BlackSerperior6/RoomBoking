@@ -40,7 +40,7 @@ namespace RoomBooking.Pages.RoomControl
                 command.Parameters.AddWithValue("@description", NpgsqlDbType.Text, Description);
                 command.Parameters.AddWithValue("@address", NpgsqlDbType.Text, Address);
                 command.Parameters.AddWithValue("@pricePerHour", NpgsqlDbType.Numeric, PricePerHour);
-                command.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
+                command.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value));
 
                 await command.ExecuteNonQueryAsync();
             }
