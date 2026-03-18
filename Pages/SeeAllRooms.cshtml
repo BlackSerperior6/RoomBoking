@@ -1,0 +1,28 @@
+﻿@page
+@model RoomBooking.Pages.SeeAllRoomsModel
+<div class="seeallrooms-form">
+    <table class="table table-striped">
+        <h3>Общий список комнат</h3>
+        <thead>
+            <tr>
+                <th>ID комнаты</th>
+                <th>ID владельца</th>
+                <th>Описание</th>
+                <th>Адрес</th>
+                <th>Цена аренды за час</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var room in Model.Rooms)
+            {
+                <tr>
+                    <td>@room.RoomId</td>
+                    <td>@room.OwnerId</td>
+                    <td>@room.Description</td>
+                    <td>@room.Address</td>
+                    <td>@room.PricePerHour</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

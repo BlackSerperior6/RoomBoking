@@ -11,7 +11,7 @@ namespace RoomBooking.Pages.BookingControls
     public class MakeBookingModel : PageModel
     {
         [BindProperty]
-        public long RoomId {get; set;}
+        public long RoomId { get; set; } = 1;
 
         [BindProperty]
         public DateTime StartDate {get; set;} = DateTime.Now;
@@ -23,11 +23,17 @@ namespace RoomBooking.Pages.BookingControls
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string selectQuery = $"SELECT * FROM \"Bookings\" WHERE \"RoomId\" = @roomId AND \"StartTime\" <= @startTime AND \"EndTime\" > @endTime FOR UPDATE;";
+            string selectQuery = $"SELECT * FROM \"Bookings\" WHERE \"RoomId\" = @roomId AND \"StartTime\" < @endTime AND \"EndTime\" > @startTime FOR UPDATE;";
             string insertQuery = $"INSERT INTO \"Bookings\" (\"BookingId\", \"UserId\", \"RoomId\", \"StartTime\", \"EndTime\") VALUES (DEFAULT, @userID, @roomId, @startTime, @endTime);";
 
             try
             {
+                if (StartDate >= EndDate)
+                {
+                    ErrorMessage = "Вы путешевстник во времени? (Дата конца должны быть больше даты начала брони)";
+                    return Page();
+                }
+
                 await using var connection = DatabaseConnectionFactory.CreateConnection();
                 await connection.OpenAsync();
 
@@ -36,8 +42,8 @@ namespace RoomBooking.Pages.BookingControls
                 await using var selectCommand = new NpgsqlCommand(selectQuery, connection);
 
                 selectCommand.Parameters.AddWithValue("@roomId", NpgsqlDbType.Bigint, RoomId);
-                selectCommand.Parameters.AddWithValue("@startTime", NpgsqlDbType.Date, StartDate);
-                selectCommand.Parameters.AddWithValue("@endTime", NpgsqlDbType.Date, EndDate);
+                selectCommand.Parameters.AddWithValue("@startTime", NpgsqlDbType.Timestamp, StartDate);
+                selectCommand.Parameters.AddWithValue("@endTime", NpgsqlDbType.Timestamp, EndDate);
 
                 await using (var reader = await selectCommand.ExecuteReaderAsync())
                 {
@@ -52,14 +58,19 @@ namespace RoomBooking.Pages.BookingControls
 
                 insertCommand.Parameters.AddWithValue("@userId", NpgsqlDbType.Bigint, long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value));
                 insertCommand.Parameters.AddWithValue("@roomId", NpgsqlDbType.Bigint, RoomId);
-                insertCommand.Parameters.AddWithValue("@startTime", NpgsqlDbType.Date, StartDate);
-                insertCommand.Parameters.AddWithValue("@endTime", NpgsqlDbType.Date, EndDate);
+                insertCommand.Parameters.AddWithValue("@startTime", NpgsqlDbType.Timestamp, StartDate);
+                insertCommand.Parameters.AddWithValue("@endTime", NpgsqlDbType.Timestamp, EndDate);
 
                 await insertCommand.ExecuteNonQueryAsync();
                 await transaction.CommitAsync();
 
                 return RedirectToPage("/Profile", new { successMessage = "Бронь успешно создана!" });
 
+            }
+            catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.ForeignKeyViolation)
+            {
+                ErrorMessage = "Комнаты с таким id не существует!";
+                return Page();
             }
             catch (Exception ex) 
             {

@@ -11,14 +11,13 @@ namespace RoomBooking.Pages.BookingControls
     public class CancelBookingModel : PageModel
     {
         [BindProperty]
-        public long BookingId {get; set;}
+        public long BookingId { get; set; } = 1;
 
         public string ErrorMessage {get; set;}
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnPostAsync()
         {
             string userCheckQuery = "SELECT * FROM \"Bookings\" WHERE \"BookingId\" = @bookingId;";
-            string ownerCheckQuery = "SELECT * FROM \"Rooms\" WHERE \"RoomId\" = @roomId AND \"OwnerId\" = @ownerId";
             string cancelBookingQuery = "DELETE FROM \"Bookings\" WHERE \"BookingId\" = @bookingId;";
 
             try
@@ -40,20 +39,13 @@ namespace RoomBooking.Pages.BookingControls
 
                 var userId = long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
                 var bookerId = reader.GetInt64(1);
-                var roomId = reader.GetInt64(2);
+
+                await reader.CloseAsync();
 
                 if (bookerId != userId)
                 {
-                    await using var checkOwnerCommand = new NpgsqlCommand(ownerCheckQuery, connection);
-
-                    checkOwnerCommand.Parameters.AddWithValue("@roomId", NpgsqlDbType.Bigint, roomId);
-                    checkOwnerCommand.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, userId);
-
-                    if (await checkOwnerCommand.ExecuteNonQueryAsync() == 0)
-                    {
-                        ErrorMessage = "Отменять бронирование могут только ее создатель или владелец комнаты!";
-                        return Page();
-                    }
+                    ErrorMessage = "Отменять бронирование могут только ее создатель или владелец комнаты!";
+                    return Page();
                 }
 
                 await using var cancelBookingCommand = new NpgsqlCommand(cancelBookingQuery, connection);

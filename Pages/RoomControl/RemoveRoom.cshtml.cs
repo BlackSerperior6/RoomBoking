@@ -43,7 +43,6 @@ namespace RoomBooking.Pages.RoomControl
                 ErrorMessage = $"Ошибка при выполнении запроса:\n{ex}";
                 return Page();
             }
-
         }
     }
 }

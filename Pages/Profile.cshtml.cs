@@ -24,8 +24,6 @@ namespace RoomBooking.Pages
 
         public List<RoomBookings> UserBookings {get; set;} = new List<RoomBookings>();
 
-        public List<RoomBookings> BookingsOfAUsersRoom {get; set;} = new List<RoomBookings>();
-
         public async Task<IActionResult> OnGetAsync(string successMessage = "", string errorMessage = "")
         {
             SuccessMessage = successMessage;
@@ -33,8 +31,6 @@ namespace RoomBooking.Pages
 
             string roomsQuery = "SELECT * FROM \"Rooms\" WHERE \"OwnerId\" = @ownerId";
             string bookingQuery = "SELECT * FROM \"Bookings\" WHERE \"UserId\" = @userId";
-            string bookingForARoomQuery = "SELECT * FROM \"Bookings\" WHERE \"RoomId\" IN (SELECT \"RoomId\" FROM \"Rooms\" WHERE " +
-                "\"OwnerId\" = @ownerId)";
 
             try
             {
@@ -55,7 +51,7 @@ namespace RoomBooking.Pages
                 {
                     var roomId = roomReader.GetInt64(0);
 
-                    var room = new Room(roomId, roomReader.GetString(1),
+                    var room = new Room(roomId, userId, roomReader.GetString(1),
                     roomReader.GetString(2), roomReader.GetDecimal(3));
 
                     UsersRooms.Add(room);
@@ -78,22 +74,6 @@ namespace RoomBooking.Pages
                 }
 
                 await usersBookingsReader.CloseAsync();
-
-                await using var commandBookingsOfAUsersRoom = new NpgsqlCommand(bookingForARoomQuery, connection);
-
-                commandBookingsOfAUsersRoom.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, userId);
-
-                await using var bookingsOfAUsersRoomReader = await commandBookingsOfAUser.ExecuteReaderAsync();
-
-                while (await bookingsOfAUsersRoomReader.ReadAsync())
-                {
-                    var booking = new RoomBookings(bookingsOfAUsersRoomReader.GetInt64(0), bookingsOfAUsersRoomReader.GetInt64(1), 
-                        bookingsOfAUsersRoomReader.GetInt64(2), bookingsOfAUsersRoomReader.GetDateTime(3), bookingsOfAUsersRoomReader.GetDateTime(4));
-
-                    BookingsOfAUsersRoom.Add(booking);
-                }
-
-                await bookingsOfAUsersRoomReader.CloseAsync();
             }
             catch (Exception e)
             {
@@ -111,13 +91,17 @@ namespace RoomBooking.Pages
     public class Room
     {
         public long RoomId {get; set;}
+
+        public long OwnerId {get; set;}
+
         public string Description {get; set;}
         public string Address {get; set;}
         public decimal PricePerHour {get; set;}
 
-        public Room(long roomId, string description, string address, decimal pricePerHour)
+        public Room(long roomId, long ownerId, string description, string address, decimal pricePerHour)
         {
             RoomId = roomId;
+            OwnerId = ownerId;
             Description = description;
             Address = address;
             PricePerHour = pricePerHour;
