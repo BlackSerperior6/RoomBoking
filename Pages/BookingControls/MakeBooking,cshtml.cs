@@ -14,21 +14,23 @@ namespace RoomBooking.Pages.BookingControls
         public long RoomId {get; set;}
 
         [BindProperty]
-        public DateTime StartDate {get; set;}
+        public DateTime StartDate {get; set;} = DateTime.Now;
 
         [BindProperty]
-        public DateTime EndDate {get; set;}
+        public DateTime EndDate {get; set;} = DateTime.Now;
 
         public string ErrorMessage { get; set; }
 
         public async Task<IActionResult> OnPostAsync()
         {
             string selectQuery = $"SELECT * FROM \"Bookings\" WHERE \"RoomId\" = @roomId AND \"StartTime\" <= @startTime AND \"EndTime\" > @endTime FOR UPDATE;";
-            string insertQuery = $"INSERT INTO \"Bookings\" (\"BookingId\", \"UserId\", \"RoomId\", \"StartTime\", \"EndTime\") VALUED (DEFAULT, @userID, @roomId, @startTime, @endTime);";
+            string insertQuery = $"INSERT INTO \"Bookings\" (\"BookingId\", \"UserId\", \"RoomId\", \"StartTime\", \"EndTime\") VALUES (DEFAULT, @userID, @roomId, @startTime, @endTime);";
 
             try
             {
                 await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await connection.OpenAsync();
+
                 await using var transaction = await connection.BeginTransactionAsync();
 
                 await using var selectCommand = new NpgsqlCommand(selectQuery, connection);
@@ -37,12 +39,13 @@ namespace RoomBooking.Pages.BookingControls
                 selectCommand.Parameters.AddWithValue("@startTime", NpgsqlDbType.Date, StartDate);
                 selectCommand.Parameters.AddWithValue("@endTime", NpgsqlDbType.Date, EndDate);
 
-                var affectedRows = await selectCommand.ExecuteNonQueryAsync();
-
-                if (affectedRows != 0)
+                await using (var reader = await selectCommand.ExecuteReaderAsync())
                 {
-                    ErrorMessage = "Данная комната уже заблокирована на это время!";
-                    return Page();
+                    if (await reader.ReadAsync())
+                    {
+                        ErrorMessage = $"Данная комната уже заблокирована на это время!";
+                        return Page();
+                    }
                 }
 
                 await using var insertCommand = new NpgsqlCommand(insertQuery, connection);

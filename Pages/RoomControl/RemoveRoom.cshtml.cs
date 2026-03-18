@@ -21,9 +21,11 @@ namespace RoomBooking.Pages.RoomControl
             try
             {
                 await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await connection.OpenAsync();
+
                 await using var command = new NpgsqlCommand(query, connection);
 
-                command.Parameters.AddWithValue("@id", NpgsqlDbType.Text, RoomId);
+                command.Parameters.AddWithValue("@id", NpgsqlDbType.Bigint, RoomId);
 
                 var affectedRows = await command.ExecuteNonQueryAsync();
 

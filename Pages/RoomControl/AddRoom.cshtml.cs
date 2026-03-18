@@ -35,6 +35,8 @@ namespace RoomBooking.Pages.RoomControl
                 }
 
                 await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await connection.OpenAsync();
+
                 await using var command = new NpgsqlCommand(query, connection);
 
                 command.Parameters.AddWithValue("@description", NpgsqlDbType.Text, Description);
@@ -50,7 +52,7 @@ namespace RoomBooking.Pages.RoomControl
                 return Page();
             }
 
-            return RedirectToPage("/Profile", new {successMessage = "!" });
+            return RedirectToPage("/Profile", new {successMessage = "Комната была успешно добавлена!" });
         }
     }
 }

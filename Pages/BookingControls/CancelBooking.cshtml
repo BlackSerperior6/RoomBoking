@@ -11,7 +11,7 @@
     <form method="post">
         <div class="form-group">
             <label>ID брони</label>
-            <input asp-for="BookingId" class="form-control" />
+            <input asp-for="BookingId" type="number" step="1" min="1" max="2147483647" class="form-control" />
         </div>
         <button type="submit" class="btn btn-primary">Отменить бронь</button>
     </form>

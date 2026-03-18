@@ -27,17 +27,20 @@ namespace RoomBooking.Pages.RoomControl
             try
             {
                 await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await connection.OpenAsync();
+
                 await using var command = new NpgsqlCommand(query, connection);
+                var userId = long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
 
                 command.Parameters.AddWithValue("@roomId", NpgsqlDbType.Bigint, roomId);
-                command.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
+                command.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, userId);
 
                 await using var reader = await command.ExecuteReaderAsync();
 
                 if (!await reader.ReadAsync())
                 {
                     await reader.CloseAsync();
-                    return RedirectToPage("/Profile", new { errorMessage = "Не существует комнаты с таким id пол вашим контролем!" });
+                    return RedirectToPage("/Profile", new { errorMessage = $"Не существует комнаты с таким id под вашим контролем!" });
                 }
 
                 Description = reader.GetString(1);
@@ -77,6 +80,8 @@ namespace RoomBooking.Pages.RoomControl
             string query = $"UPDATE \"Rooms\" Set \"Description\" = @description, \"Address\" = @address, \"PricePerHour\" = @pricePerHour, \"version\" = {entryVersion + 1} WHERE \"RoomId\" = @roomId AND \"version\" = '{entryVersion}'";
 
             using var connection = DatabaseConnectionFactory.CreateConnection();
+            await connection.OpenAsync();
+
             using var command = new NpgsqlCommand(query, connection);
 
             command.Parameters.AddWithValue("@description", NpgsqlDbType.Text, Description);

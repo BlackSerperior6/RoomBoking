@@ -24,6 +24,7 @@ namespace RoomBooking.Pages.BookingControls
             try
             {
                 await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await connection.OpenAsync();
 
                 await using var checkUserCommand = new NpgsqlCommand(userCheckQuery, connection);
 

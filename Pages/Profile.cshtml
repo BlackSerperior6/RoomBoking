@@ -15,28 +15,34 @@
 
     <div class="form-group">
         <label>Ваш логин:</label>
-        <input asp-for="Login" class="form-control" readonly />
+        <h3>@Model.Login</h3>
     </div>
 
-    <!-- Кнопки для работы с комнатами в одну линию -->
+    <!-- Кнопки для работы с комнатами -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <h5 class="card-title">Управление комнатами</h5>
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-2 mb-3">
                 <a class="btn btn-primary" asp-area="" asp-page="/RoomControl/AddRoom">Добавить комнату</a>
                 <a class="btn btn-outline-danger" asp-area="" asp-page="/RoomControl/RemoveRoom">Удалить комнату</a>
-
-                <form method="post" asp-page-handler="RedactRoom" class="d-flex gap-2 align-items-center">
-                    <div class="form-group mb-0" style="min-width: 150px;">
-                        <input asp-for="RoomIdRedact" class="form-control" placeholder="ID комнаты" />
-                    </div>
-                    <button type="submit" class="btn btn-outline-warning">Редактировать комнату</button>
-                </form>
+                <button type="submit" form="redactRoomForm" class="btn btn-outline-warning">Редактировать комнату</button>
             </div>
+
+            <!-- Форма с ID комнаты на отдельной строке -->
+            <form id="redactRoomForm" method="post" asp-page-handler="RedactRoom" class="mt-2">
+                <div class="form-group">
+                    <label asp-for="RoomIdRedact">ID комнаты для редактирования:</label>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input asp-for="RoomIdRedact" type="number" step="1" min="1" max="2147483647" class="form-control" placeholder="Введите ID комнаты" />
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Кнопки для работы с бронями в одну линию -->
+    <!-- Кнопки для работы с бронями -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <h5 class="card-title">Управление бронированиями</h5>
@@ -48,7 +54,7 @@
     </div>
 
     <table class="table table-striped">
-        <caption>Ваши комнаты</caption>
+        <h3>Ваши комнаты</h3>
         <thead>
             <tr>
                 <th>ID комнаты</th>
@@ -71,7 +77,7 @@
     </table>
 
     <table class="table table-striped">
-        <caption>Ваши брони</caption>
+        <h3>Ваши брони</h3>
         <thead>
             <tr>
                 <th>ID брони</th>
@@ -94,10 +100,11 @@
     </table>
 
     <table class="table table-striped">
-        <caption>Брони ваших комнат</caption>
+        <h3>Брони ваших комнат</h3>
         <thead>
             <tr>
                 <th>ID брони</th>
+                <th>ID бронировщика</th>
                 <th>ID комнаты</th>
                 <th>Время начала брони</th>
                 <th>Время конца брони</th>
@@ -108,6 +115,7 @@
             {
                     <tr>
                         <td>@booking.BookingId</td>
+                        <td>@booking.UserId</td>
                         <td>@booking.RoomId</td>
                         <td>@booking.StartTime</td>
                         <td>@booking.EndTime</td>
@@ -123,8 +131,9 @@
         gap: 0.5rem;
     }
 
-    .d-flex .form-group {
-        margin-bottom: 0;
+    .form-group label {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
     }
 
     @@media (max-width: 768px) {
@@ -132,12 +141,11 @@
             flex-direction: column;
         }
 
-        .d-flex.flex-wrap .form-group {
+        .d-flex.flex-wrap .btn {
             width: 100%;
-            min-width: 100% !important;
         }
 
-        .d-flex.flex-wrap .btn {
+        .col-md-4 {
             width: 100%;
         }
     }

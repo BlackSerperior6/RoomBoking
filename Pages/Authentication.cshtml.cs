@@ -49,7 +49,7 @@ namespace RoomBooking.Pages
                         if (!string.IsNullOrWhiteSpace(returnUrl))
                             return Redirect(returnUrl);
                         else
-                            return RedirectToPage("/Index");
+                            return RedirectToPage("/Profile");
                     }
                 }
             }

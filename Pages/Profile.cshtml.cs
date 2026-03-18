@@ -14,12 +14,6 @@ namespace RoomBooking.Pages
         public string Login { get; set; }
 
         [BindProperty]
-        public decimal RoomIdAdd { get; set; }
-
-        [BindProperty]
-        public decimal RoomIdDelete { get; set; }
-
-        [BindProperty]
         public decimal RoomIdRedact { get; set; }
 
         public string ErrorMessage {get; set;}
@@ -39,7 +33,7 @@ namespace RoomBooking.Pages
 
             string roomsQuery = "SELECT * FROM \"Rooms\" WHERE \"OwnerId\" = @ownerId";
             string bookingQuery = "SELECT * FROM \"Bookings\" WHERE \"UserId\" = @userId";
-            string bookingForARoomQuery = "SELECT * FROM \"Bookings\" WHERE \"RoomId\" in (SELECT \"RoomId\" FROM \"Rooms\" WHERE " +
+            string bookingForARoomQuery = "SELECT * FROM \"Bookings\" WHERE \"RoomId\" IN (SELECT \"RoomId\" FROM \"Rooms\" WHERE " +
                 "\"OwnerId\" = @ownerId)";
 
             try
@@ -77,8 +71,8 @@ namespace RoomBooking.Pages
 
                 while (await usersBookingsReader.ReadAsync())
                 {
-                    var booking = new RoomBookings(usersBookingsReader.GetInt64(0), usersBookingsReader.GetInt64(2), 
-                    usersBookingsReader.GetDateTime(3), usersBookingsReader.GetDateTime(4));
+                    var booking = new RoomBookings(usersBookingsReader.GetInt64(0), usersBookingsReader.GetInt64(1), 
+                    usersBookingsReader.GetInt64(2), usersBookingsReader.GetDateTime(3), usersBookingsReader.GetDateTime(4));
 
                     UserBookings.Add(booking);
                 }
@@ -87,12 +81,14 @@ namespace RoomBooking.Pages
 
                 await using var commandBookingsOfAUsersRoom = new NpgsqlCommand(bookingForARoomQuery, connection);
 
+                commandBookingsOfAUsersRoom.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, userId);
+
                 await using var bookingsOfAUsersRoomReader = await commandBookingsOfAUser.ExecuteReaderAsync();
 
                 while (await bookingsOfAUsersRoomReader.ReadAsync())
                 {
-                    var booking = new RoomBookings(bookingsOfAUsersRoomReader.GetInt64(0), bookingsOfAUsersRoomReader.GetInt64(2),
-                    bookingsOfAUsersRoomReader.GetDateTime(3), bookingsOfAUsersRoomReader.GetDateTime(4));
+                    var booking = new RoomBookings(bookingsOfAUsersRoomReader.GetInt64(0), bookingsOfAUsersRoomReader.GetInt64(1), 
+                        bookingsOfAUsersRoomReader.GetInt64(2), bookingsOfAUsersRoomReader.GetDateTime(3), bookingsOfAUsersRoomReader.GetDateTime(4));
 
                     BookingsOfAUsersRoom.Add(booking);
                 }
@@ -108,14 +104,8 @@ namespace RoomBooking.Pages
             return Page();
         }
 
-        public IActionResult OnPostAddRoom() 
-            => RedirectToPage("/RoomControl/AddRoom", new { id = RoomIdAdd });
-
-        public IActionResult OnPostDeleteRoom() 
-            => RedirectToPage("/RoomControl/DeleteRoom", new { id = RoomIdDelete });
-
         public IActionResult OnPostRedactRoom() 
-        => RedirectToPage("/RoomControl/RedactRoom", new { id = RoomIdRedact });
+        => RedirectToPage("/RoomControl/RedactRoom", new { roomId = RoomIdRedact });
     }
 
     public class Room
@@ -137,13 +127,15 @@ namespace RoomBooking.Pages
     public class RoomBookings
     {
         public long BookingId {get; set;}
+        public long UserId { get; set; }
         public long RoomId {get; set;}
         public DateTime StartTime {get; set;}
         public DateTime EndTime {get; set;}
 
-        public RoomBookings(long bookingId, long roomId, DateTime startTime, DateTime endTime)
+        public RoomBookings(long bookingId, long userId,long roomId, DateTime startTime, DateTime endTime)
         {
             BookingId = bookingId;
+            UserId = userId;
             RoomId = roomId;
             StartTime = startTime;
             EndTime = endTime;
