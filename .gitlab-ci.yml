@@ -6,7 +6,6 @@ stages:
 variables:
   IMAGE_NAME: $CI_REGISTRY_IMAGE/roomBooking:$CI_COMMIT_SHORT_SHA
   CONTAINER_NAME: roomBooking-container
-  CI_SERVER_URL: http://172.17.0.1:8081
 
 # Кэширование папок с зависимостями для ускорения сборки
 cache:
