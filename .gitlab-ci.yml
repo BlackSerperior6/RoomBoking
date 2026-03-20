@@ -6,15 +6,15 @@ stages:
 variables:
   IMAGE_NAME: $CI_REGISTRY_IMAGE/roomBooking:$CI_COMMIT_SHORT_SHA
   CONTAINER_NAME: roomBooking-container
-  GIT_STRATEGY: clone
+  GIT_STRATEGY: none
+  REPO_URL: "http://$GITLAB_DEPLOY_USERNAME:$GITLAB_DEPLOY_PASSWORD@$CI_SERVER_HOST:$CI_SERVER_PORT/$CI_PROJECT_PATH.git"
   GIT_SSL_NO_VERIFY: "true" 
 
 before_script:
-  # Настройка git для использования deploy token
-  - git config --global credential.helper store
-  - echo "http://$GITLAB_DEPLOY_USERNAME:$GITLAB_DEPLOY_PASSWORD@$CI_SERVER_HOST:$CI_SERVER_PORT" > ~/.git-credentials
-  - git config --global user.email "runner@example.com"
-  - git config --global user.name "GitLab Runner"
+  - apt-get update && apt-get install -y git docker-compose || apk add --no-cache git docker-compose
+  - git config --global http.sslVerify "false"
+  - git clone $REPO_URL .
+  - git checkout $CI_COMMIT_BRANCH || git checkout master
 
 # Кэширование папок с зависимостями для ускорения сборки
 cache:
