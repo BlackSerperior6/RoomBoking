@@ -6,6 +6,15 @@ stages:
 variables:
   IMAGE_NAME: $CI_REGISTRY_IMAGE/roomBooking:$CI_COMMIT_SHORT_SHA
   CONTAINER_NAME: roomBooking-container
+  GIT_STRATEGY: clone
+  GIT_SSL_NO_VERIFY: "true" 
+
+before_script:
+  # Настройка git для использования deploy token
+  - git config --global credential.helper store
+  - echo "http://$GITLAB_DEPLOY_USERNAME:$GITLAB_DEPLOY_PASSWORD@$CI_SERVER_HOST:$CI_SERVER_PORT" > ~/.git-credentials
+  - git config --global user.email "runner@example.com"
+  - git config --global user.name "GitLab Runner"
 
 # Кэширование папок с зависимостями для ускорения сборки
 cache:
