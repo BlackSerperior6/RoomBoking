@@ -23,7 +23,7 @@ build:
   artifacts:
     paths:
       - ./publish
-    expire_in: 1 hour
+    expire_in: 2 hour
 
 # Этап тестирования (опционально)
 test:
