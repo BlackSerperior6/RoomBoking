@@ -6,6 +6,7 @@ stages:
 variables:
   IMAGE_NAME: $CI_REGISTRY_IMAGE/roomBooking:$CI_COMMIT_SHORT_SHA
   CONTAINER_NAME: roomBooking-container
+  DOCKER_HOST: unix:///var/run/docker.sock
 
 # Кэширование папок с зависимостями для ускорения сборки
 cache:
@@ -42,14 +43,9 @@ test:
 deploy:
   stage: deploy
   image: docker:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    IMAGE_NAME: roomBooking:latest
   before_script:
-    - apk add --no-cache docker-compose
+    - docker version
+    - docker info
   script:
     # Сборка через docker-compose
     - docker-compose build
@@ -57,7 +53,7 @@ deploy:
     # Остановка старых контейнеров
     - docker-compose down || true
 
-    #Получение пароля от дб из гитлаба
+    # Получение пароля от дб из гитлаба
     - export DP_LIB_PASSWORD=$DP_LIB_PASSWORD
 
     # Запуск новых контейнеров
