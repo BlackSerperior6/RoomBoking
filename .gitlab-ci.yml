@@ -46,11 +46,9 @@ deploy:
   services:
     - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
     IMAGE_NAME: roomBooking:latest
   before_script:
-    - ls -la /var/run/docker.sock
     - docker version
     - apk add --no-cache docker-compose
   script:
