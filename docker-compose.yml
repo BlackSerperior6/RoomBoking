@@ -9,7 +9,7 @@ services:
     container_name: ${CONTAINER_NAME:-roombooking-container}
     restart: always
     ports:
-      - "8080:80"
+      - "8083:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - DP_LIB_PASSWORD=${DP_LIB_PASSWORD}
