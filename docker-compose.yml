@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web:
+    image: ${IMAGE_NAME:-roomBooking:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: roomBooking-container
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - DP_LIB_PASSWORD=${DP_LIB_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT=Production
