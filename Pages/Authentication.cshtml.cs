@@ -55,10 +55,10 @@ namespace RoomBooking.Pages
             }
             catch (Exception e)
             {
-                ErrorMessage = $"Произошла ошибка:\n{e}.\nПожалуйста, обратитесь к администратору!";
+                ErrorMessage = $"РћС€РёР±РєР° РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё Р·Р°РїСЂРѕСЃР°:\n{e}!";
             }
 
-            ErrorMessage = "Неверный логин или пароль!";
+            ErrorMessage = "РќРµРІРµСЂРЅС‹Р№ Р»РѕРіРёРЅ РёР»Рё РїР°СЂРѕР»СЊ!";
             return Page();
         }
     }

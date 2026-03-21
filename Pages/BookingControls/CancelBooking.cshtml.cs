@@ -33,7 +33,7 @@ namespace RoomBooking.Pages.BookingControls
 
                 if (!await reader.ReadAsync())
                 {
-                    ErrorMessage = "Не существует брони с таким id!";
+                    ErrorMessage = "РќРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ Р±СЂРѕРЅРё СЃ С‚Р°РєРёРј id!";
                     return Page();
                 }
 
@@ -44,7 +44,7 @@ namespace RoomBooking.Pages.BookingControls
 
                 if (bookerId != userId)
                 {
-                    ErrorMessage = "Отменять бронирование могут только ее создатель или владелец комнаты!";
+                    ErrorMessage = "Р”Р°РЅРЅР°СЏ Р±СЂРѕРЅСЊ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РІР°Рј!";
                     return Page();
                 }
 
@@ -54,11 +54,11 @@ namespace RoomBooking.Pages.BookingControls
 
                 await cancelBookingCommand.ExecuteNonQueryAsync();
 
-                return RedirectToPage("/Profile", new {successMessage = "Бронь была успешно отменена!" });
+                return RedirectToPage("/Profile", new {successMessage = "Р‘СЂРѕРЅСЊ Р±С‹Р»Р° СѓСЃРїРµС€РЅР° СѓРґР°Р»РµРЅР°!" });
             }
             catch (Exception ex) 
             {
-                ErrorMessage = $"Ошибка при выполнении запроса:\n{ex}";
+                ErrorMessage = $"РћС€РёР±РєР° РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё Р·Р°РїСЂРѕСЃР°:\n{ex}";
                 return Page();
             }
         }
