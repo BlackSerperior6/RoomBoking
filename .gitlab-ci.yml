@@ -53,7 +53,7 @@ deploy:
     - docker-compose build
     
     # Остановка старых контейнеров
-    - docker-compose down || true
+    - docker-compose down --remove-orphans || true
 
     # Получение пароля от дб из гитлаба
     - export DP_LIB_PASSWORD=$DP_LIB_PASSWORD

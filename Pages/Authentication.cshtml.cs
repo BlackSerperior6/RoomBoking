@@ -55,10 +55,10 @@ namespace RoomBooking.Pages
             }
             catch (Exception e)
             {
-                ErrorMessage = $"Ошибка при выполнении запроса:\n{e}.\n����������, ���������� � ��������������!";
+                ErrorMessage = $"Ошибка при выполнении запроса:\n{e}!";
             }
 
-            ErrorMessage = "�������� ����� ��� ������!";
+            ErrorMessage = "Неверный логин или пароль!";
             return Page();
         }
     }

@@ -11,5 +11,6 @@ services:
     ports:
       - "8083:80"
     environment:
+      - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Production
       - DP_LIB_PASSWORD=${DP_LIB_PASSWORD}

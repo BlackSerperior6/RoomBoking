@@ -25,7 +25,7 @@ namespace RoomBooking.Pages
             {
                 if (string.IsNullOrWhiteSpace(Login) || string.IsNullOrWhiteSpace(Password))
                 {
-                    ErrorMessage = "Все поля должны быть заполнены!";
+                    ErrorMessage = "Все поля должы быть заполнены!";
                     return Page();
                 }
 
@@ -43,7 +43,7 @@ namespace RoomBooking.Pages
             }
             catch (NpgsqlException e) when (e.SqlState == PostgresErrorCodes.UniqueViolation)
             {
-                ErrorMessage = "Такой логин уже занят!";
+                ErrorMessage = "Логин должен быть уникальным!";
                 return Page();
             }
             catch (Exception ex) 

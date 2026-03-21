@@ -44,7 +44,7 @@ namespace RoomBooking.Pages.BookingControls
 
                 if (bookerId != userId)
                 {
-                    ErrorMessage = "Запись не принадлежит вам!";
+                    ErrorMessage = "Данная бронь не принадлежит вам!";
                     return Page();
                 }
 
@@ -54,7 +54,7 @@ namespace RoomBooking.Pages.BookingControls
 
                 await cancelBookingCommand.ExecuteNonQueryAsync();
 
-                return RedirectToPage("/Profile", new {successMessage = "Запись была успешно удалена!" });
+                return RedirectToPage("/Profile", new {successMessage = "Бронь была успешна удалена!" });
             }
             catch (Exception ex) 
             {
