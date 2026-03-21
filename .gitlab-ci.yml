@@ -25,6 +25,8 @@ build:
     paths:
       - ./publish
     expire_in: 2 hour
+only:
+  - master
 
 # Этап тестирования (опционально)
 test:
@@ -35,9 +37,7 @@ test:
   dependencies:
     - build
   only:
-    - merge_requests
     - master
-    - develop
 
 # Этап деплоя
 deploy:
