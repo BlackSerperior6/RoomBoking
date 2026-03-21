@@ -1,0 +1,32 @@
+// Database/NpgsqlConnectionWrapper.cs
+using Npgsql;
+using System.Data.Common;
+
+namespace RoomBooking.Wrappers
+{
+    public class NpgsqlConnectionWrapper : IDbConnectionWrapper
+    {
+        private readonly NpgsqlConnection _connection;
+        
+        public NpgsqlConnectionWrapper(NpgsqlConnection connection)
+        {
+            _connection = connection;
+        }
+        
+        public async Task OpenAsync(CancellationToken cancellationToken = default)
+        {
+            await _connection.OpenAsync(cancellationToken);
+        }
+        
+        public IDbCommandWrapper CreateCommand(string sql)
+        {
+            var command = new NpgsqlCommand(sql, _connection);
+            return new NpgsqlCommandWrapper(command);
+        }
+        
+        public async ValueTask DisposeAsync()
+        {
+            await _connection.DisposeAsync();
+        }
+    } 
+}

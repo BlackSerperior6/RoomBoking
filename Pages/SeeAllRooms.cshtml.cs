@@ -34,7 +34,7 @@ namespace RoomBooking.Pages
             }
             catch (Exception ex) 
             {
-                return RedirectToPage("/Profile", new {errorMessage = $"Ошибка при выполнении запроса:\n{ex}" }); 
+                return RedirectToPage("/Profile", new {errorMessage = $"РћС€РёР±РєР° РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё Р·Р°РїСЂРѕСЃР°:\n{ex}" }); 
             }
         }
     }

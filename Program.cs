@@ -3,6 +3,12 @@ using RoomBooking;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<IDatabaseConnectionFactory, NpgsqlConnectionFactory>();
+
+// Register user context
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserContext, UserContext>();
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 

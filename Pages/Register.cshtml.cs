@@ -25,7 +25,7 @@ namespace RoomBooking.Pages
             {
                 if (string.IsNullOrWhiteSpace(Login) || string.IsNullOrWhiteSpace(Password))
                 {
-                    ErrorMessage = "Ни одно из полей не должно быть пустым!";
+                    ErrorMessage = "Р’СЃРµ РїРѕР»СЏ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ Р·Р°РїРѕР»РЅРµРЅС‹!";
                     return Page();
                 }
 
@@ -43,16 +43,16 @@ namespace RoomBooking.Pages
             }
             catch (NpgsqlException e) when (e.SqlState == PostgresErrorCodes.UniqueViolation)
             {
-                ErrorMessage = "Такой логин уже занят!";
+                ErrorMessage = "РўР°РєРѕР№ Р»РѕРіРёРЅ СѓР¶Рµ Р·Р°РЅСЏС‚!";
                 return Page();
             }
             catch (Exception ex) 
             {
-                ErrorMessage = $"Ошибка при выполнении запроса:\n{ex}";
+                ErrorMessage = $"РћС€РёР±РєР° РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё Р·Р°РїСЂРѕСЃР°:\n{ex}";
                 return Page();
             }
 
-            SuccessMessage = "Ваш аккаунт был успешно создан!";
+            SuccessMessage = "Р РµРіРёСЃС‚СЂР°С†РёСЏ РїСЂРѕС€Р»Р° СѓСЃРїРµС€РЅРѕ!";
             return Page();
         }
     }

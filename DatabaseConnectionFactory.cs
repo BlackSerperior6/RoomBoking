@@ -1,12 +1,14 @@
 ﻿using Npgsql;
+using RoomBooking.Interfaces;
+using RoomBooking.Wrappers;
 
 namespace RoomBooking
 {
-    public static class DatabaseConnectionFactory
+    public class DatabaseConnectionFactory : IDatabaseConnectionFactory
     {
-        private static string _connectionString;
+        private string _connectionString;
 
-        public static void Init(IConfiguration configuration)
+        public NpgsqlConnectionFactory(IConfiguration configuration)
         {
             var baseConnectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -23,6 +25,10 @@ namespace RoomBooking
             _connectionString = $"{baseConnectionString};Password={dbPassword};";
         }
 
-        public static NpgsqlConnection CreateConnection() => new NpgsqlConnection(_connectionString);
+        public static IDbConnectionWrapper CreateConnection()
+        {
+            var connection = new NpgsqlConnection(_connectionString);
+            return new NpgsqlConnectionWrapper(connection);
+        }
     }
 }

@@ -4,12 +4,17 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Npgsql;
 using NpgsqlTypes;
 using System.Security.Claims;
+using RoomBooking.Interfaces;
+using RoomBooking.Wrappers;
 
 namespace RoomBooking.Pages.RoomControl
 {
     [Authorize]
     public class AddRoomModel : PageModel
     {
+        private readonly IDatabaseConnectionFactory _connectionFactory;
+        private readonly IUserContext _userContext;
+
         [BindProperty]
         public string Description { get; set; }
 
@@ -20,6 +25,14 @@ namespace RoomBooking.Pages.RoomControl
         public decimal PricePerHour { get; set; } = 1m;
 
         public string ErrorMessage { get; set; }
+
+        public AddRoomModel(
+            IDatabaseConnectionFactory connectionFactory,
+            IUserContext userContext)
+        {
+            _connectionFactory = connectionFactory;
+            _userContext = userContext;
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -34,16 +47,16 @@ namespace RoomBooking.Pages.RoomControl
                     return Page();
                 }
 
-                await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await using var connection = _connectionFactory.CreateConnection();
                 await connection.OpenAsync();
 
-                await using var command = new NpgsqlCommand(query, connection);
+                await using var command = connection.CreateCommand(query);
 
-                command.Parameters.AddWithValue("@description", NpgsqlDbType.Text, Description);
-                command.Parameters.AddWithValue("@address", NpgsqlDbType.Text, Address);
-                command.Parameters.AddWithValue("@pricePerHour", NpgsqlDbType.Numeric, PricePerHour);
-                command.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value));
-
+                command.AddParameter("@description", NpgsqlDbType.Text, Description);
+                command.AddParameter("@address", NpgsqlDbType.Text, Address);
+                command.AddParameter("@pricePerHour", NpgsqlDbType.Numeric, PricePerHour);
+                command.AddParameter("@ownerId", NpgsqlDbType.Bigint, _userContext.GetCurrentUserId());
+                
                 await command.ExecuteNonQueryAsync();
             }
             catch (Exception ex) 
