@@ -53,12 +53,15 @@ deploy:
     # Остановка старых контейнеров
     - docker-compose down --remove-orphans || true
 
+    #Очитска весящих сетей
+    - docker network prune -f
+
     # Получение пароля от дб из гитлаба
     - export DP_LIB_PASSWORD=$DP_LIB_PASSWORD
 
     # Запуск новых контейнеров
     - docker-compose up -d
-    
+
     # Очистка
     - docker system prune -f
   only:
