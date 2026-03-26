@@ -1,16 +1,23 @@
-version: '3.8'
-
 services:
   web:
     image: ${IMAGE_NAME:-roombooking:latest}
+    pull_policy: missing
     build:
       context: .
       dockerfile: Dockerfile
     container_name: ${CONTAINER_NAME:-roombooking-container}
-    restart: always
+    restart: unless-stopped
+    extra_hosts:
+      database: host-gateway
+    networks:
+      - app-network
     ports:
       - "8083:80"
     environment:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Production
       - DP_LIB_PASSWORD=${DP_LIB_PASSWORD}
+
+networks:
+  app-network:
+    driver: bridge
