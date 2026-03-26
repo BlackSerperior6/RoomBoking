@@ -16,9 +16,7 @@ cache:
 # Этап сборки
 build:
   stage: build
-  image:
-    name: mcr.microsoft.com/dotnet/sdk:8.0
-    pull_policy: missing
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
     - dotnet restore
     - dotnet build --configuration Release --no-restore
@@ -33,9 +31,7 @@ build:
 # Этап тестирования (опционально)
 test:
   stage: test
-  image:
-    name: mcr.microsoft.com/dotnet/sdk:8.0
-    pull_policy: missing
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
     - dotnet test --configuration Release --no-build --verbosity normal
   dependencies:
@@ -46,9 +42,7 @@ test:
 # Этап деплоя
 deploy:
   stage: deploy
-  image:
-    name: docker:latest
-    pull_policy: missing
+  image: docker:latest
   before_script:
     - docker version
     - docker info
