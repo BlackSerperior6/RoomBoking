@@ -19,7 +19,6 @@ build:
   image:
     name: mcr.microsoft.com/dotnet/sdk:8.0
     pull_policy: missing
-  pull_policy: missing
   script:
     - dotnet restore
     - dotnet build --configuration Release --no-restore
