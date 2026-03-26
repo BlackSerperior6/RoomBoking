@@ -9,9 +9,15 @@ services:
     restart: unless-stopped
     extra_hosts:
       database: host-gateway
+    networks:
+      - app-network
     ports:
       - "8083:80"
     environment:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Production
       - DP_LIB_PASSWORD=${DP_LIB_PASSWORD}
+
+networks:
+  app-network:
+    driver: bridge
