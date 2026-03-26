@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     container_name: ${CONTAINER_NAME:-roombooking-container}
     restart: unless-stopped
+    extra_hosts:
+      database: host-gateway
     ports:
       - "8083:80"
     environment:
