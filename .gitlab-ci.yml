@@ -17,6 +17,7 @@ cache:
 build:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:8.0
+  pull_policy: missing
   script:
     - dotnet restore
     - dotnet build --configuration Release --no-restore
@@ -32,6 +33,7 @@ build:
 test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
+  pull_policy: missing
   script:
     - dotnet test --configuration Release --no-build --verbosity normal
   dependencies:
@@ -43,6 +45,7 @@ test:
 deploy:
   stage: deploy
   image: docker:latest
+  pull_policy: missing
   before_script:
     - docker version
     - docker info
