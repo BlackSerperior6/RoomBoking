@@ -3,9 +3,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-COPY ./publish ./publish
+COPY ./publish .
 
 # Entrypoint that uses mounted artifacts
-ENTRYPOINT ["dotnet", "publish/RoomBooking.dll"]
-#ENTRYPOINT ["/bin/bash"]
-#CMD ["-c", "tail -f /dev/null"]
+ENTRYPOINT ["dotnet", "RoomBooking.dll"]
