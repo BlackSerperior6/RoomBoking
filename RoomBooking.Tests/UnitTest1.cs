@@ -1,4 +1,4 @@
-namespace RoomBooking.Tests;
+﻿namespace RoomBooking.Tests;
 
 public class UnitTest1
 {

@@ -1,7 +1,5 @@
-bin/
-obj/
-.vs/
-Properties/
+RoomBooking/bin/
+RoomBooking/obj/
 
-*.user
-appsettings.Development.json
+RoomBooking.Tests/bin/
+RoomBooking.Tests/obj/

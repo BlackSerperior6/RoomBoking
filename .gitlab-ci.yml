@@ -18,6 +18,8 @@ build:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
+    - cd RoomBooking/
+
     - dotnet restore
     - dotnet build --configuration Release --no-restore
     - dotnet publish --configuration Release --output ./publish --no-build
@@ -49,6 +51,9 @@ deploy:
     - docker version
     - docker info
   script:
+
+    - cd RoomBooking/
+
     # Сборка через docker-compose
     - docker-compose build
     
