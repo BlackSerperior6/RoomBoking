@@ -4,4 +4,4 @@ EXPOSE 80
 EXPOSE 443
 
 # Entrypoint that uses mounted artifacts
-ENTRYPOINT ["dotnet", "/app/publish/RoomBooking.dll"]
+ENTRYPOINT ["dotnet", "/publish/RoomBooking.dll"]

@@ -18,13 +18,9 @@ build:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:10.0
   script:
-    - cd RoomBooking/
-
     - dotnet restore
     - dotnet build --configuration Release --no-restore
     - dotnet publish --configuration Release --output ../publish --no-build
-    
-     cd ../
   artifacts:
     paths:
       - ./publish
