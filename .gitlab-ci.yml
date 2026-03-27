@@ -49,6 +49,9 @@ deploy:
     - docker version
     - docker info
   script:
+
+    - ls l publish/
+    
     - cd RoomBooking/
 
     # Сборка через docker-compose
