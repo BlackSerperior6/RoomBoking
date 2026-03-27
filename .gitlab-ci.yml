@@ -52,7 +52,9 @@ deploy:
     
     - cd RoomBooking/
 
-    - cp ../publish ./publish
+    - ls -l ../publish
+
+    - cp -r ../publish ./publish
 
     # Сборка через docker-compose
     - docker-compose build
