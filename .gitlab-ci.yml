@@ -51,9 +51,7 @@ deploy:
   script:
     
     - cd RoomBooking/
-
-    - ls -l ../publish
-
+    
     # Сборка через docker-compose
     - docker-compose build
     

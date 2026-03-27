@@ -13,8 +13,6 @@ services:
       - app-network
     ports:
       - "8083:80"
-    volumes:
-      - ../publish:/app/publish
     environment:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Production
