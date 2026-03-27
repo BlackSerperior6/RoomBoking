@@ -2,11 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Npgsql;
 using NpgsqlTypes;
+using RoomBooking.Interfaces;
 
 namespace RoomBooking.Pages
 {
     public class RegisterModel : PageModel
     {
+        private IDatabaseConnectionFactory _connectionFactory;
+
+        public RegisterModel(IDatabaseConnectionFactory connectionFactory)
+        {
+            _connectionFactory = connectionFactory;
+        }
+
         [BindProperty]
         public string Login { get; set; }
 
@@ -29,15 +37,15 @@ namespace RoomBooking.Pages
                     return Page();
                 }
 
-                await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await using var connection = _connectionFactory.CreateConnection();
                 await connection.OpenAsync();
 
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(Password);
 
-                await using var command = new NpgsqlCommand(query, connection);
+                await using var command = connection.CreateCommand(query);
 
-                command.Parameters.AddWithValue("@login", NpgsqlDbType.Text, Login);
-                command.Parameters.AddWithValue("@passwordHash", NpgsqlDbType.Text, hashedPassword);
+                command.AddParameter("@login", NpgsqlDbType.Text, Login);
+                command.AddParameter("@passwordHash", NpgsqlDbType.Text, hashedPassword);
 
                 await command.ExecuteNonQueryAsync();
             }

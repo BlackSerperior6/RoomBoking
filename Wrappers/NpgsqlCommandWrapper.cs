@@ -1,7 +1,6 @@
 using Npgsql;
 using NpgsqlTypes;
 using RoomBooking.Interfaces;
-using System.Data.Common;
 
 namespace RoomBooking.Wrappers
 {

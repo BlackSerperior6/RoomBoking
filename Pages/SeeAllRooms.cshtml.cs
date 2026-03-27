@@ -1,13 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
 using Npgsql;
+using RoomBooking.Interfaces;
 
 namespace RoomBooking.Pages
 {
     public class SeeAllRoomsModel : PageModel
     {
+        private IDatabaseConnectionFactory _databaseConnectionFactory;
+
         public List<Room> Rooms { get; set; } = new List<Room>();
+
+        public SeeAllRoomsModel(IDatabaseConnectionFactory databaseConnectionFactory)
+        {
+            _databaseConnectionFactory = databaseConnectionFactory;
+        }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -15,10 +22,10 @@ namespace RoomBooking.Pages
 
             try
             {
-                await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await using var connection = _databaseConnectionFactory.CreateConnection();
                 await connection.OpenAsync();
 
-                await using var command = new NpgsqlCommand(query, connection);
+                await using var command = connection.CreateCommand(query);
 
                 await using var reader = await command.ExecuteReaderAsync();
 

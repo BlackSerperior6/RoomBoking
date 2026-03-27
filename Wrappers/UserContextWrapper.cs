@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using RoomBooking.Interfaces;
 using System.Security.Claims;
 
@@ -29,14 +30,14 @@ namespace RoomBooking.Wrappers
             return userIdClaim != null ? long.Parse(userIdClaim) : 0;
         }
 
-        public Task SignInAsync(string scheme, ClaimsPrincipal principal)
+        public async Task SignInAsync(string scheme, ClaimsPrincipal principal)
         {
-            _httpContextAccessor.HttpContext?.
+            await _httpContextAccessor.HttpContext?.SignInAsync(scheme, principal);
         }
 
-        public Task SignOutAsync(string scheme)
+        public async Task SignOutAsync(string scheme)
         {
-            throw new NotImplementedException();
+            await _httpContextAccessor.HttpContext?.SignOutAsync(scheme);
         }
     }
 }
