@@ -20,10 +20,15 @@ build:
   script:
     - dotnet restore
     - dotnet build --configuration Release --no-restore
+
+    - cd RoomBooking/
+
     - dotnet publish --configuration Release --output ./publish --no-build
+
+    - cd ../
   artifacts:
     paths:
-      - ./publish
+      - RoomBooking/publish
     expire_in: 2 hour
   only:
     - master
@@ -52,9 +57,7 @@ deploy:
     
     - cd RoomBooking/
 
-    - ls -l ../publish
-
-    - cp -r ../publish ./publish
+    - ls -l
 
     # Сборка через docker-compose
     - docker-compose build
