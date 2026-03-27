@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Npgsql;
 using NpgsqlTypes;
+using RoomBooking.Interfaces;
 using System.Security.Claims;
 
 namespace RoomBooking.Pages
@@ -10,6 +11,15 @@ namespace RoomBooking.Pages
     [Authorize]
     public class ProfileModel : PageModel
     {
+        private IDatabaseConnectionFactory _connectionFactory;
+        private IUserContextWrapper _userContextWrapper;
+
+        public ProfileModel(IDatabaseConnectionFactory connectionFactory, IUserContextWrapper userContextWrapper)
+        {
+            _connectionFactory = connectionFactory;
+            _userContextWrapper = userContextWrapper;
+        }
+
         [BindProperty]
         public string Login { get; set; }
 
@@ -34,16 +44,16 @@ namespace RoomBooking.Pages
 
             try
             {
-                Login = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+                Login = _userContextWrapper.GetCurrentUserLogin();
 
-                long userId = long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
+                long userId = _userContextWrapper.GetCurrentUserId();
 
-                await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await using var connection = _connectionFactory.CreateConnection();
                 await connection.OpenAsync();
 
-                await using var commandRoomsOfAUser = new NpgsqlCommand(roomsQuery, connection);
+                await using var commandRoomsOfAUser = connection.CreateCommand(roomsQuery);
 
-                commandRoomsOfAUser.Parameters.AddWithValue("@ownerId", NpgsqlDbType.Bigint, userId);
+                commandRoomsOfAUser.AddParameter("@ownerId", NpgsqlDbType.Bigint, userId);
 
                 await using var roomReader = await commandRoomsOfAUser.ExecuteReaderAsync();
 
@@ -59,9 +69,9 @@ namespace RoomBooking.Pages
 
                 await roomReader.CloseAsync();
 
-                await using var commandBookingsOfAUser = new NpgsqlCommand(bookingQuery, connection);
+                await using var commandBookingsOfAUser = connection.CreateCommand(bookingQuery);
 
-                commandBookingsOfAUser.Parameters.AddWithValue("@userId", NpgsqlDbType.Bigint, userId);
+                commandBookingsOfAUser.AddParameter("@userId", NpgsqlDbType.Bigint, userId);
 
                 await using var usersBookingsReader = await commandBookingsOfAUser.ExecuteReaderAsync();
 

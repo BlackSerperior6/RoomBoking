@@ -1,6 +1,6 @@
-// Database/NpgsqlConnectionWrapper.cs
+using Dapper;
 using Npgsql;
-using System.Data.Common;
+using RoomBooking.Interfaces;
 
 namespace RoomBooking.Wrappers
 {
@@ -27,6 +27,19 @@ namespace RoomBooking.Wrappers
         public async ValueTask DisposeAsync()
         {
             await _connection.DisposeAsync();
+        }
+
+        public async Task<IDbTransactionWrapper> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            var transaction = await _connection.BeginTransactionAsync(cancellationToken);
+            return new NpgsqlTransactionWrapper(transaction);
+        }
+
+        public async Task<T> QueryFirstOrDefaultAsync<T>(string sql, object parameters = null)
+        {
+            return await _connection.QueryFirstOrDefaultAsync<T>(
+                sql,
+                parameters);
         }
     } 
 }

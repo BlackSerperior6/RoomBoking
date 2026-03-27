@@ -1,3 +1,5 @@
+using RoomBooking.Interfaces;
+
 namespace RoomBooking.Services
 {
     public class SessionService : ISessionService

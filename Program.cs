@@ -1,13 +1,18 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using RoomBooking;
+using RoomBooking.Interfaces;
+using RoomBooking.Services;
+using RoomBooking.Wrappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IDatabaseConnectionFactory, NpgsqlConnectionFactory>();
+builder.Services.AddScoped<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
 
 // Register user context
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUserContext, UserContext>();
+builder.Services.AddScoped<IUserContextWrapper, UserContext>();
+
+builder.Services.AddScoped<ISessionService, SessionService>();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -52,7 +57,5 @@ app.UseAuthorization();
 app.UseSession();
 
 app.MapRazorPages();
-
-DatabaseConnectionFactory.Init(app.Configuration);
 
 app.Run();

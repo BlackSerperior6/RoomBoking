@@ -3,12 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Npgsql;
 using NpgsqlTypes;
+using RoomBooking.Interfaces;
 using System.Security.Claims;
 
 namespace RoomBooking.Pages.RoomControl
 {
     public class RemoveRoomModel : PageModel
     {
+        private IDatabaseConnectionFactory __connectionFactory;
+
+        public RemoveRoomModel(IDatabaseConnectionFactory dbConnectionFactory)
+        {
+            __connectionFactory = dbConnectionFactory;
+        }
+
         [BindProperty]
         public long RoomId { get; set; }
 
@@ -20,12 +28,12 @@ namespace RoomBooking.Pages.RoomControl
 
             try
             {
-                await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await using var connection = __connectionFactory.CreateConnection();
                 await connection.OpenAsync();
 
-                await using var command = new NpgsqlCommand(query, connection);
+                await using var command = connection.CreateCommand(query);
 
-                command.Parameters.AddWithValue("@id", NpgsqlDbType.Bigint, RoomId);
+                command.AddParameter("@id", NpgsqlDbType.Bigint, RoomId);
 
                 var affectedRows = await command.ExecuteNonQueryAsync();
 

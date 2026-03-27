@@ -4,11 +4,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 using Dapper;
+using RoomBooking.Interfaces;
 
 namespace RoomBooking.Pages
 {
     public class AuthenticationModel : PageModel
     {
+        private IDatabaseConnectionFactory _connectionFactory;
+        private IUserContextWrapper _userContext;
+
+        public AuthenticationModel(IDatabaseConnectionFactory connectionFactory, IUserContextWrapper userContext)
+        {
+            _connectionFactory = connectionFactory;
+            _userContext = userContext;
+        }
+
         [BindProperty]
         public string Login { get; set; }
 
@@ -23,7 +33,7 @@ namespace RoomBooking.Pages
 
             try
             {
-                await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await using var connection = _connectionFactory.CreateConnection();
 
                 var user = await connection.QueryFirstOrDefaultAsync
                     <(long id, string passwordHash)>(query, new { login = Login });
@@ -40,7 +50,7 @@ namespace RoomBooking.Pages
                             new Claim(ClaimTypes.NameIdentifier, user.id.ToString())
                         };
 
-                        await HttpContext.SignInAsync(
+                        await _userContext.SignInAsync(
                             CookieAuthenticationDefaults.AuthenticationScheme,
                             new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies")));
 

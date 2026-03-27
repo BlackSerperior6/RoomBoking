@@ -8,7 +8,7 @@ namespace RoomBooking
     {
         private string _connectionString;
 
-        public NpgsqlConnectionFactory(IConfiguration configuration)
+        public DatabaseConnectionFactory(IConfiguration configuration)
         {
             var baseConnectionString = configuration.GetConnectionString("DefaultConnection");
 
@@ -25,7 +25,7 @@ namespace RoomBooking
             _connectionString = $"{baseConnectionString};Password={dbPassword};";
         }
 
-        public static IDbConnectionWrapper CreateConnection()
+        public IDbConnectionWrapper CreateConnection()
         {
             var connection = new NpgsqlConnection(_connectionString);
             return new NpgsqlConnectionWrapper(connection);

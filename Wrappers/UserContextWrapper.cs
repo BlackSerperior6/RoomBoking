@@ -1,6 +1,9 @@
+using RoomBooking.Interfaces;
+using System.Security.Claims;
+
 namespace RoomBooking.Wrappers
 {
-    public class UserContext : IUserContext
+    public class UserContext : IUserContextWrapper
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         
@@ -11,8 +14,8 @@ namespace RoomBooking.Wrappers
 
         public string GetCurrentUserLogin()
         {
-            var userLoginClaims = 
-            User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+            var userLoginClaims =
+            _httpContextAccessor.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
             return string.IsNullOrWhiteSpace(userLoginClaims) ? "" : userLoginClaims;
 
@@ -24,6 +27,16 @@ namespace RoomBooking.Wrappers
                 .Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             
             return userIdClaim != null ? long.Parse(userIdClaim) : 0;
+        }
+
+        public Task SignInAsync(string scheme, ClaimsPrincipal principal)
+        {
+            _httpContextAccessor.HttpContext?.
+        }
+
+        public Task SignOutAsync(string scheme)
+        {
+            throw new NotImplementedException();
         }
     }
 }

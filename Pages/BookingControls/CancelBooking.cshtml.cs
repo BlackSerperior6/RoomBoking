@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Npgsql;
 using NpgsqlTypes;
+using RoomBooking.Interfaces;
 using System.Security.Claims;
 
 namespace RoomBooking.Pages.BookingControls
@@ -10,6 +11,16 @@ namespace RoomBooking.Pages.BookingControls
     [Authorize]
     public class CancelBookingModel : PageModel
     {
+        private IDatabaseConnectionFactory _connectionFactory;
+
+        private IUserContextWrapper _userContext;
+
+        public CancelBookingModel(IDatabaseConnectionFactory connectionFactory, IUserContextWrapper userContext)
+        {
+            _connectionFactory = connectionFactory;
+            _userContext = userContext;
+        }
+
         [BindProperty]
         public long BookingId { get; set; } = 1;
 
@@ -22,12 +33,12 @@ namespace RoomBooking.Pages.BookingControls
 
             try
             {
-                await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await using var connection = _connectionFactory.CreateConnection();
                 await connection.OpenAsync();
 
-                await using var checkUserCommand = new NpgsqlCommand(userCheckQuery, connection);
+                await using var checkUserCommand = connection.CreateCommand(userCheckQuery);
 
-                checkUserCommand.Parameters.AddWithValue("@bookingId", NpgsqlDbType.Bigint, BookingId);
+                checkUserCommand.AddParameter("@bookingId", NpgsqlDbType.Bigint, BookingId);
 
                 await using var reader = await checkUserCommand.ExecuteReaderAsync();
 
@@ -37,7 +48,7 @@ namespace RoomBooking.Pages.BookingControls
                     return Page();
                 }
 
-                var userId = long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value);
+                var userId = _userContext.GetCurrentUserId();
                 var bookerId = reader.GetInt64(1);
 
                 await reader.CloseAsync();
@@ -48,9 +59,9 @@ namespace RoomBooking.Pages.BookingControls
                     return Page();
                 }
 
-                await using var cancelBookingCommand = new NpgsqlCommand(cancelBookingQuery, connection);
+                await using var cancelBookingCommand = connection.CreateCommand(cancelBookingQuery);
 
-                cancelBookingCommand.Parameters.AddWithValue("@bookingId", NpgsqlDbType.Bigint, BookingId);
+                cancelBookingCommand.AddParameter("@bookingId", NpgsqlDbType.Bigint, BookingId);
 
                 await cancelBookingCommand.ExecuteNonQueryAsync();
 

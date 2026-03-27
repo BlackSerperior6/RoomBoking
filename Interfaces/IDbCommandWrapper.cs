@@ -1,3 +1,5 @@
+using NpgsqlTypes;
+
 namespace RoomBooking.Interfaces
 {
     public interface IDbCommandWrapper : IAsyncDisposable

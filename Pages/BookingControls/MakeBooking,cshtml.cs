@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Npgsql;
 using NpgsqlTypes;
+using RoomBooking.Interfaces;
 using System.Security.Claims;
 
 namespace RoomBooking.Pages.BookingControls
@@ -10,6 +12,16 @@ namespace RoomBooking.Pages.BookingControls
     [Authorize]
     public class MakeBookingModel : PageModel
     {
+        private IDatabaseConnectionFactory _connectionFactory;
+        private IUserContextWrapper _userContext;
+
+        public MakeBookingModel(IDatabaseConnectionFactory connectionFactory,
+            IUserContextWrapper userContext)
+        {
+            _connectionFactory = connectionFactory;
+            _userContext = userContext;
+        }
+
         [BindProperty]
         public long RoomId { get; set; } = 1;
 
@@ -34,16 +46,16 @@ namespace RoomBooking.Pages.BookingControls
                     return Page();
                 }
 
-                await using var connection = DatabaseConnectionFactory.CreateConnection();
+                await using var connection = _connectionFactory.CreateConnection();
                 await connection.OpenAsync();
 
                 await using var transaction = await connection.BeginTransactionAsync();
 
-                await using var selectCommand = new NpgsqlCommand(selectQuery, connection);
+                await using var selectCommand = connection.CreateCommand(selectQuery);
 
-                selectCommand.Parameters.AddWithValue("@roomId", NpgsqlDbType.Bigint, RoomId);
-                selectCommand.Parameters.AddWithValue("@startTime", NpgsqlDbType.Timestamp, StartDate);
-                selectCommand.Parameters.AddWithValue("@endTime", NpgsqlDbType.Timestamp, EndDate);
+                selectCommand.AddParameter("@roomId", NpgsqlDbType.Bigint, RoomId);
+                selectCommand.AddParameter("@startTime", NpgsqlDbType.Timestamp, StartDate);
+                selectCommand.AddParameter("@endTime", NpgsqlDbType.Timestamp, EndDate);
 
                 await using (var reader = await selectCommand.ExecuteReaderAsync())
                 {
@@ -54,12 +66,13 @@ namespace RoomBooking.Pages.BookingControls
                     }
                 }
 
-                await using var insertCommand = new NpgsqlCommand(insertQuery, connection);
+                await using var insertCommand = connection.CreateCommand(insertQuery);
 
-                insertCommand.Parameters.AddWithValue("@userId", NpgsqlDbType.Bigint, long.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value));
-                insertCommand.Parameters.AddWithValue("@roomId", NpgsqlDbType.Bigint, RoomId);
-                insertCommand.Parameters.AddWithValue("@startTime", NpgsqlDbType.Timestamp, StartDate);
-                insertCommand.Parameters.AddWithValue("@endTime", NpgsqlDbType.Timestamp, EndDate);
+                insertCommand.AddParameter("@userId", NpgsqlDbType.Bigint, _userContext.GetCurrentUserId());
+
+                insertCommand.AddParameter("@roomId", NpgsqlDbType.Bigint, RoomId);
+                insertCommand.AddParameter("@startTime", NpgsqlDbType.Timestamp, StartDate);
+                insertCommand.AddParameter("@endTime", NpgsqlDbType.Timestamp, EndDate);
 
                 await insertCommand.ExecuteNonQueryAsync();
                 await transaction.CommitAsync();

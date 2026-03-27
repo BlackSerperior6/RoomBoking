@@ -13,7 +13,7 @@ namespace RoomBooking.Pages.RoomControl
     public class AddRoomModel : PageModel
     {
         private readonly IDatabaseConnectionFactory _connectionFactory;
-        private readonly IUserContext _userContext;
+        private readonly IUserContextWrapper _userContext;
 
         [BindProperty]
         public string Description { get; set; }
@@ -28,7 +28,7 @@ namespace RoomBooking.Pages.RoomControl
 
         public AddRoomModel(
             IDatabaseConnectionFactory connectionFactory,
-            IUserContext userContext)
+            IUserContextWrapper userContext)
         {
             _connectionFactory = connectionFactory;
             _userContext = userContext;
