@@ -16,7 +16,7 @@ cache:
 # Этап сборки
 build:
   stage: build
-  image: mcr.microsoft.com/dotnet/sdk:8.0
+  image: mcr.microsoft.com/dotnet/sdk:10.0
   script:
     - cd RoomBooking/
 
@@ -35,11 +35,10 @@ build:
 # Этап тестирования (опционально)
 test:
   stage: test
-  image: mcr.microsoft.com/dotnet/sdk:8.0
+  image: mcr.microsoft.com/dotnet/sdk:10.0
   before_script:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
   script:
-    - ls -l
     - dotnet test --configuration Release --no-build --verbosity normal
   dependencies:
     - build
@@ -54,7 +53,6 @@ deploy:
     - docker version
     - docker info
   script:
-
     - cd RoomBooking/
 
     # Сборка через docker-compose
