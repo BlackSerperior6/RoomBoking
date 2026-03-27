@@ -6,3 +6,4 @@ EXPOSE 443
 # Entrypoint that uses mounted artifacts
 #ENTRYPOINT ["dotnet", "publish/RoomBooking.dll"]
 ENTRYPOINT ["/bin/bash"]
+CMD ["-c", "tail -f /dev/null"]
