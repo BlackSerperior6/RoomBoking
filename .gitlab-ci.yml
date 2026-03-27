@@ -38,7 +38,7 @@ test:
   image: mcr.microsoft.com/dotnet/sdk:8.0
   before_script:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
-    - pwd
+    - ls -l
   script:
     - dotnet test --configuration Release --no-build --verbosity normal
   dependencies:
