@@ -23,7 +23,7 @@ build:
     - dotnet restore
     - dotnet build --configuration Release --no-restore
     - dotnet publish --configuration Release --output ../publish --no-build
-    
+
      cd ../
   artifacts:
     paths:
@@ -37,7 +37,14 @@ test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:8.0
   before_script:
-    - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
+      - echo "Checking DP_LIB_PASSWORD existence"
+      - if [ -z "$DP_LIB_PASSWORD" ]; then 
+          echo "DP_LIB_PASSWORD is not set";
+          echo "All CI variables (masked):";
+          env | grep -v "PASSWORD\|SECRET\|TOKEN" | sort;
+        else 
+          echo "DP_LIB_PASSWORD is set (value masked)";
+        fi
   script:
     - dotnet test --configuration Release --no-build --verbosity normal
   dependencies:
