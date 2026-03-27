@@ -22,7 +22,9 @@ build:
 
     - dotnet restore
     - dotnet build --configuration Release --no-restore
-    - dotnet publish --configuration Release --output ./publish --no-build
+    - dotnet publish --configuration Release --output ../publish --no-build
+    
+     cd ../
   artifacts:
     paths:
       - ./publish
