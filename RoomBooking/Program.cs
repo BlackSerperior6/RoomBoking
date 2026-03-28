@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.OpenApi;
 using RoomBooking;
 using RoomBooking.Interfaces;
 using RoomBooking.Services;
 using RoomBooking.Wrappers;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,25 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContextWrapper, UserContext>();
 
 builder.Services.AddScoped<ISessionService, SessionService>();
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "RoomBooking",
+        Version = "v1",
+        Description = "Documentation for room booking service",
+        Contact = new OpenApiContact
+        {
+            Name = "BlackSerperior6",
+            Email = "m330.nek76@gmail.com"
+        }
+    });
+
+    options.OperationFilter<RazorPageOperationFilter>();
+});
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -46,6 +68,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseSwagger();
+
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
@@ -58,4 +82,18 @@ app.UseSession();
 
 app.MapRazorPages();
 
+app.MapControllers();
+
 app.Run();
+
+public class RazorPageOperationFilter : IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        if (context.MethodInfo.DeclaringType?.IsSubclassOf(typeof(PageModel)) == true)
+        {
+            operation.Description ??= "Razor Page endpoint";
+            operation.Summary ??= "Page handler";
+        }
+    }
+}
