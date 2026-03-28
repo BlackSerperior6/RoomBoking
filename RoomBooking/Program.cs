@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.OpenApi;
 using RoomBooking;
 using RoomBooking.Interfaces;
 using RoomBooking.Services;
 using RoomBooking.Wrappers;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
