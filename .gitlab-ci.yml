@@ -2,18 +2,16 @@ stages:
   - build
   - test
   - deploy
+  - pages
 
 variables:
   IMAGE_NAME: roombooking:latest
   CONTAINER_NAME: roombooking-container
   DOCKER_HOST: unix:///var/run/docker.sock
 
-# Кэширование папок с зависимостями для ускорения сборки
 cache:
   paths:
     - ~/.nuget/packages/
-
-# Этап сборки
 build:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:10.0
@@ -28,12 +26,17 @@ build:
     - cd ../
   artifacts:
     paths:
+      - RoomBooking/bin
+      - RoomBooking/obj
       - RoomBooking/publish
+
+      - RoomBooking.Tests/bin
+      - RoomBooking.Tests/obj
     expire_in: 2 hour
   only:
     - master
 
-# Этап тестирования (опционально)
+# Этап тестирования
 test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:10.0
@@ -41,8 +44,6 @@ test:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
   script:
     - dotnet test --configuration Release --no-build --verbosity normal
-  dependencies:
-    - build
   only:
     - master
 
@@ -54,10 +55,7 @@ deploy:
     - docker version
     - docker info
   script:
-    
     - cd RoomBooking/
-
-    - ls -l
 
     # Сборка через docker-compose
     - docker-compose build
@@ -76,5 +74,25 @@ deploy:
 
     # Очистка
     - docker system prune -f
+
+    - cd ../
   only:
     - master
+
+pages:
+  stage: documentation
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  script:
+    - dotnet tool restore
+
+    - dotnet docfx RoomBooking/docfx.json
+    
+    - mv RoomBooking/_site/ ./public
+  dependencies:
+    - build
+  artifacts:
+    paths:
+      - ./public
+    expire_in: 2 hour
+  only:
+    - /^docs$/
