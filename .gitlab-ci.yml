@@ -86,4 +86,4 @@ pages:
       - ./public
     expire_in: 2 hour
   only:
-    - /^docs$/
+    - tags
