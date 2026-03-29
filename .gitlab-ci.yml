@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - deploy
-  - pages
+  - documentation
 
 variables:
   IMAGE_NAME: roombooking:latest
