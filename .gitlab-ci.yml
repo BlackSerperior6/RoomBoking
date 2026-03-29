@@ -22,8 +22,6 @@ build:
     - cd RoomBooking/
 
     - dotnet publish --configuration Release --output ./publish --no-build
-
-    - cd ../
   artifacts:
     paths:
       - RoomBooking/bin
@@ -43,6 +41,8 @@ test:
   before_script:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
   script:
+    - pwd
+    - ls -l ./RoomBooking
     - dotnet test --configuration Release --no-build --verbosity normal
   only:
     - master
@@ -74,8 +74,6 @@ deploy:
 
     # Очистка
     - docker system prune -f
-
-    - cd ../
   only:
     - master
 
