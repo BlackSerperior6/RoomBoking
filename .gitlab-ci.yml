@@ -9,9 +9,6 @@ variables:
   CONTAINER_NAME: roombooking-container
   DOCKER_HOST: unix:///var/run/docker.sock
 
-cache:
-  paths:
-    - ~/.nuget/packages/
 build:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:10.0
@@ -41,10 +38,7 @@ test:
   before_script:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
   script:
-    - pwd
-    - ls -l ./RoomBooking
-    - ls -l ./RoomBooking.Tests
-    - dotnet test --configuration Release --no-build --verbosity normal
+    - dotnet test RoomBooking.Tests/RoomBooking.Tests.csproj --configuration Release --no-build --verbosity normal
   only:
     - master
 
@@ -87,8 +81,6 @@ pages:
     - dotnet docfx RoomBooking/docfx.json
     
     - mv RoomBooking/_site/ ./public
-  dependencies:
-    - build
   artifacts:
     paths:
       - ./public
