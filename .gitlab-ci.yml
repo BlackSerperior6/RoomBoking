@@ -43,6 +43,7 @@ test:
   script:
     - pwd
     - ls -l ./RoomBooking
+    - ls -l ./RoomBooking.Tests
     - dotnet test --configuration Release --no-build --verbosity normal
   only:
     - master
