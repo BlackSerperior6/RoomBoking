@@ -83,7 +83,7 @@ pages:
     - mv RoomBooking/_site/ ./public
   artifacts:
     paths:
-      - ./public
+      - public
     expire_in: 2 hour
   only:
     - tags
