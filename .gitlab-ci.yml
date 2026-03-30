@@ -80,10 +80,11 @@ pages:
 
     - dotnet docfx RoomBooking/docfx.json
     
-    - mv RoomBooking/_site/ ./public
+    - mv RoomBooking/_site/ public
   artifacts:
     paths:
       - public
     expire_in: 2 hour
+  publish: public
   only:
     - tags
