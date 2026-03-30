@@ -72,7 +72,7 @@ deploy:
   only:
     - master
 
-pages:
+documentation:
   stage: documentation
   image: mcr.microsoft.com/dotnet/sdk:10.0
   script:

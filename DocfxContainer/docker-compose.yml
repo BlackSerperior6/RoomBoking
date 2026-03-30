@@ -1,0 +1,9 @@
+services:
+  docfx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docfx
+    ports:
+      - "8090:80"
+    restart: unless-stopped

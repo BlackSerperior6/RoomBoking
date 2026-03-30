@@ -21,6 +21,11 @@
         "files": [
           "api/**.yml"
         ]
+      },
+      {
+        "files": [
+          "index.md"
+        ]
       }
     ],
     "output": "_site",
