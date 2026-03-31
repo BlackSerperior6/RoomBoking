@@ -80,11 +80,22 @@ documentation:
 
     - dotnet docfx RoomBooking/docfx.json
     
-    - mv RoomBooking/_site/ public
+    - mv RoomBooking/_site/ DocfxContainer/_site
+
+    - cd ./DocfxContainer
+
+    - docker-compose build
+    
+    - docker-compose down --remove-orphans || true
+
+    - docker network prune -f
+
+    - docker-compose up -d
+
+    - docker system prune -f
   artifacts:
     paths:
-      - public
+      - DocfxContainer/_site
     expire_in: 2 hour
-  publish: public
   only:
     - tags
