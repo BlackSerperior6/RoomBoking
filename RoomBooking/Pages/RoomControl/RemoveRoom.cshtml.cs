@@ -4,17 +4,28 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Npgsql;
 using NpgsqlTypes;
 using RoomBooking.Interfaces;
+using RoomBooking.Wrappers;
 using System.Security.Claims;
 
 namespace RoomBooking.Pages.RoomControl
 {
+    /// <summary>
+    /// Page model for removing a room from the system.
+    /// </summary>
     public class RemoveRoomModel : PageModel
     {
         private IDatabaseConnectionFactory __connectionFactory;
 
-        public RemoveRoomModel(IDatabaseConnectionFactory dbConnectionFactory)
+        private IUserContextWrapper _contextWrapper;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="dbConnectionFactory">The connection factory to use for database connections.</param>
+        public RemoveRoomModel(IDatabaseConnectionFactory dbConnectionFactory, IUserContextWrapper contextWrapper)
         {
             __connectionFactory = dbConnectionFactory;
+            _contextWrapper = contextWrapper;
         }
 
         [BindProperty]
@@ -24,7 +35,7 @@ namespace RoomBooking.Pages.RoomControl
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string query = "DELETE FROM \"Rooms\" WHERE \"RoomId\" = @id";
+            string query = "DELETE FROM \"Rooms\" WHERE \"RoomId\" = @id AND \"OwnerId\" = @ownerId";
 
             try
             {
@@ -34,12 +45,13 @@ namespace RoomBooking.Pages.RoomControl
                 await using var command = connection.CreateCommand(query);
 
                 command.AddParameter("@id", NpgsqlDbType.Bigint, RoomId);
+                command.AddParameter("@ownerId", NpgsqlDbType.Bigint, _contextWrapper.GetCurrentUserId());
 
                 var affectedRows = await command.ExecuteNonQueryAsync();
 
                 if (affectedRows == 0)
                 {
-                    ErrorMessage = "Не существует комнаты с таким id";
+                    ErrorMessage = "Не существует комнаты с таким id принадлежащей вам";
                     return Page();
                 }
 

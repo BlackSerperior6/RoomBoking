@@ -11,12 +11,7 @@ namespace RoomBooking.Pages.RoomControl
 {
     /// <summary>
     /// Page model for adding a new room to the system.
-    /// This page handles the creation of room listings by authenticated users.
     /// </summary>
-    /// <remarks>
-    /// Only authorized users can access this page. The room will be associated 
-    /// with the currently authenticated user as the owner.
-    /// </remarks>
     [Authorize]
     public class AddRoomModel : PageModel
     {
