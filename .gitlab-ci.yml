@@ -74,7 +74,12 @@ deploy:
 
 documentation:
   stage: documentation
-  image: mcr.microsoft.com/dotnet/sdk:10.0
+  image: docker:latest
+  before_script:
+    - docker version
+    - docker info
+    - apk add dotnet10-sdk
+    - dotnet --version
   script:
     - dotnet tool restore
 
