@@ -57,7 +57,7 @@ public class RemoveRoomModelTest
         
         var result = await _pageModel.OnPostAsync();
 
-         var redirectResult = Assert.IsType<RedirectToPageResult>(result);
+        var redirectResult = Assert.IsType<RedirectToPageResult>(result);
 
         Assert.Equal("/Profile", redirectResult.PageName);
 
@@ -112,6 +112,7 @@ public class RemoveRoomModelTest
         _mockCommand.Verify(x => x.DisposeAsync(), Times.Once);
     }
 
+     [Fact]
     public async Task OnPostAyncDbErrorTest()
     {
         var expectedUserId = 12345L;

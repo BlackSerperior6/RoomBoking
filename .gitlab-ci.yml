@@ -38,7 +38,7 @@ test:
   before_script:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
   script:
-    - dotnet test RoomBooking.Tests/RoomBooking.Tests.csproj --configuration Release --no-build --verbosity normal
+    - dotnet test --configuration Release --no-build --verbosity normal
   only:
     - master
 
