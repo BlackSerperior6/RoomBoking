@@ -23,7 +23,6 @@ build:
     - cd ../
   artifacts:
     paths:
-      - RoomBooking/bin/Release
       - RoomBooking.Tests/bin/Release
       - RoomBooking/publish
     expire_in: 2 hour
