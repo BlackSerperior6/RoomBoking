@@ -23,12 +23,9 @@ build:
     - cd ../
   artifacts:
     paths:
-      - RoomBooking/bin
-      - RoomBooking/obj
+      - RoomBooking/bin/Release
+      - RoomBooking.Tests/bin/Release
       - RoomBooking/publish
-
-      - RoomBooking.Tests/bin
-      - RoomBooking.Tests/obj
     expire_in: 2 hour
   only:
     - master
@@ -40,10 +37,7 @@ test:
   before_script:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
   script:
-    - ls -la
-    - ls -la ./RoomBooking
-    - ls -la ./RoomBooking.Tests
-    - dotnet test --configuration Release --no-build --verbosity normal
+    - dotnet test RoomBooking.Tests/bin/Release/net10.0/RoomBooking.Tests.dll --no-build
   dependencies:
     - build
   only:
