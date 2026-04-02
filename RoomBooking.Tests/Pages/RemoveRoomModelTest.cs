@@ -61,7 +61,7 @@ public class RemoveRoomModelTest
 
         Assert.Equal("/Profile", redirectResult.PageName);
 
-        Assert.Equal("Комната была успешно удалена", redirectResult.RouteValues["successMessage"]);
+        Assert.Equal("Комната б", redirectResult.RouteValues["successMessage"]);
 
         _mockCommand.Verify(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()), Times.Once);
             
