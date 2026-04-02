@@ -44,6 +44,8 @@ namespace RoomBooking.Pages.RoomControl
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="connectionFactory">The connection factory to use for database connections.</param>
+        /// <param name="userContext">The user context wrapper to use in the operations.</param>
         public AddRoomModel(
             IDatabaseConnectionFactory connectionFactory,
             IUserContextWrapper userContext)

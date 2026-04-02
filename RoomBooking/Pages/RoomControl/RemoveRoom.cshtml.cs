@@ -1,11 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Npgsql;
 using NpgsqlTypes;
 using RoomBooking.Interfaces;
-using RoomBooking.Wrappers;
-using System.Security.Claims;
 
 namespace RoomBooking.Pages.RoomControl
 {
@@ -22,17 +18,31 @@ namespace RoomBooking.Pages.RoomControl
         /// Constructor.
         /// </summary>
         /// <param name="dbConnectionFactory">The connection factory to use for database connections.</param>
+        /// <param name="contextWrapper">The user context wrapper to use in the operations.</param>
         public RemoveRoomModel(IDatabaseConnectionFactory dbConnectionFactory, IUserContextWrapper contextWrapper)
         {
             __connectionFactory = dbConnectionFactory;
             _contextWrapper = contextWrapper;
         }
 
+        /// <summary>
+        /// Id of the room to be removed.
+        /// </summary>
         [BindProperty]
         public long RoomId { get; set; }
 
+        /// <summary>
+        /// Error message to display in case of an error occuring.
+        /// </summary>
         public string ErrorMessage { get; set; }
 
+        /// <summary>
+        /// Handles the POST request to remove a room.
+        /// </summary>
+        /// <returns>
+        /// Redirects to the profile page with success message on success,
+        /// or returns the current page with error message on validation failure or exception.
+        /// </returns>
         public async Task<IActionResult> OnPostAsync()
         {
             string query = "DELETE FROM \"Rooms\" WHERE \"RoomId\" = @id AND \"OwnerId\" = @ownerId";
