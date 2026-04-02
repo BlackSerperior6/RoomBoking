@@ -41,6 +41,8 @@ test:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
   script:
     - dotnet test --configuration Release --no-build --verbosity normal
+  dependencies:
+    - build
   only:
     - master
 
@@ -71,6 +73,8 @@ deploy:
 
     # Очистка
     - docker system prune -f
+  dependencies:
+    - build
   only:
     - master
 
