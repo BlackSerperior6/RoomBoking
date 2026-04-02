@@ -19,6 +19,8 @@ build:
     - cd RoomBooking/
 
     - dotnet publish --configuration Release --output ./publish --no-build
+
+    - cd ../
   artifacts:
     paths:
       - RoomBooking/bin
