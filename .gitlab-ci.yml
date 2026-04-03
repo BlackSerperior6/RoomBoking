@@ -11,7 +11,6 @@ variables:
   IMAGE_NAME: roombooking:latest
   CONTAINER_NAME: roombooking-container
   DOCKER_HOST: unix:///var/run/docker.sock
-  DB_URL: "jdbc:postgresql://your-db-host:5432/your-database"
   FLYWAY_VERSION: 12.3.0
 
 build:
@@ -53,36 +52,29 @@ prodmigrations:
     entrypoint: [""]
   script:
       - flyway -url="jdbc:postgresql://localhost:5432/RoomBooking" -user="Booker" -password="$DP_LIB_PASSWORD" -schemas="prod" -table="prod_schema_history" -locations="filesystem:./Migrations/Prod" -validateMigrationNaming=true migrate
+  dependencies: []
   only:
     - master
 
 devmigrations:
   stage: devmigrations
-  image: flyway/flyway:${FLYWAY_VERSION}-alpine
+  image: 
+    name: flyway/flyway:${FLYWAY_VERSION}
+    entrypoint: [""]
   script:
-      - flyway \
-        -url=jdbc:postgresql://localhost:5432/RoomBooking \
-        -user=Booker \
-        -password=$DP_LIB_PASSWORD \
-        -schemas=dev\
-        -table=dev_schema_history \
-        -locations=filesystem:./Migrations/Dev \
-        migrate
+      - flyway -url="jdbc:postgresql://localhost:5432/RoomBooking" -user="Booker" -password="$DP_LIB_PASSWORD" -schemas="dev" -table="dev_schema_history" -locations="filesystem:./Migrations/Dev" -validateMigrationNaming=true migrate
+  dependencies: []
   only:
     - Dev
 
 testmigrations:
   stage: testmigrations
-  image: flyway/flyway:${FLYWAY_VERSION}-alpine
+  image: 
+    name: flyway/flyway:${FLYWAY_VERSION}
+    entrypoint: [""]
   script:
-      - flyway \
-        -url=jdbc:postgresql://localhost:5432/RoomBooking \
-        -user=Booker \
-        -password=$DP_LIB_PASSWORD \
-        -schemas=test\
-        -table=test_schema_history \
-        -locations=filesystem:./Migrations/Test \
-        migrate
+      - flyway -url="jdbc:postgresql://localhost:5432/RoomBooking" -user="Booker" -password="$DP_LIB_PASSWORD" -schemas="test" -table="test_schema_history" -locations="filesystem:./Migrations/Test" -validateMigrationNaming=true migrate
+  dependencies: []
   only:
     - Test
 

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS dev.Users (
+CREATE TABLE dev.Users (
     UserId BIGSERIAL NOT NULL,
     Login TEXT NOT NULL UNIQUE,
     PasswordHash TEXT NOT NULL,

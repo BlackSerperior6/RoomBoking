@@ -7,7 +7,7 @@ CREATE TABLE dev.Rooms (
     version BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT pk_rooms PRIMARY KEY (RoomId),
     CONSTRAINT fk_rooms_owner_id FOREIGN KEY (OwnerId) 
-        REFERENCES dev.Users(UserId) 
+        REFERENCES prod.Users(UserId) 
         ON DELETE CASCADE
         ON UPDATE NO ACTION
 );
