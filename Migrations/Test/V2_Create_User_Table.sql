@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS test.Users (
+    UserId BIGSERIAL NOT NULL,
+    Login TEXT NOT NULL UNIQUE,
+    PasswordHash TEXT NOT NULL,
+    CONSTRAINT pk_users PRIMARY KEY (UserId)
+);

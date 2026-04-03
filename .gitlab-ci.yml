@@ -1,6 +1,9 @@
 stages:
   - build
   - test
+  - prodmigrations
+  - devmigrations
+  - testmigrations
   - deploy
   - documentation
 
@@ -8,6 +11,8 @@ variables:
   IMAGE_NAME: roombooking:latest
   CONTAINER_NAME: roombooking-container
   DOCKER_HOST: unix:///var/run/docker.sock
+  DB_URL: "jdbc:postgresql://your-db-host:5432/your-database"
+  FLYWAY_VERSION: 12.3.0
 
 build:
   stage: build
@@ -29,7 +34,6 @@ build:
   only:
     - master
 
-# Этап тестирования
 test:
   stage: test
   image: mcr.microsoft.com/dotnet/sdk:10.0
@@ -42,7 +46,51 @@ test:
   only:
     - master
 
-# Этап деплоя
+prodmigrations:
+  stage: prodmigrations
+  image: flyway/flyway:${FLYWAY_VERSION}-alpine
+  script:
+      - flyway \
+        -url=jdbc:postgresql://localhost:5432/RoomBooking \
+        -user=Booker \
+        -password=$DP_LIB_PASSWORD \
+        -schemas=prod\
+        -table=prod_schema_history \
+        -locations=filesystem:./Migrations/Prod \
+        migrate
+  only:
+    - master
+
+devmigrations:
+  stage: devmigrations
+  image: flyway/flyway:${FLYWAY_VERSION}-alpine
+  script:
+      - flyway \
+        -url=jdbc:postgresql://localhost:5432/RoomBooking \
+        -user=Booker \
+        -password=$DP_LIB_PASSWORD \
+        -schemas=dev\
+        -table=dev_schema_history \
+        -locations=filesystem:./Migrations/Dev \
+        migrate
+  only:
+    - Dev
+
+testmigrations:
+  stage: testmigrations
+  image: flyway/flyway:${FLYWAY_VERSION}-alpine
+  script:
+      - flyway \
+        -url=jdbc:postgresql://localhost:5432/RoomBooking \
+        -user=Booker \
+        -password=$DP_LIB_PASSWORD \
+        -schemas=test\
+        -table=test_schema_history \
+        -locations=filesystem:./Migrations/Test \
+        migrate
+  only:
+    - Test
+
 deploy:
   stage: deploy
   image: docker:latest
@@ -52,22 +100,16 @@ deploy:
   script:
     - cd RoomBooking/
 
-    # Сборка через docker-compose
     - docker-compose build
-    
-    # Остановка старых контейнеров
+
     - docker-compose down --remove-orphans || true
 
-    #Очитска весящих сетей
     - docker network prune -f
 
-    # Получение пароля от дб из гитлаба
     - export DP_LIB_PASSWORD=$DP_LIB_PASSWORD
 
-    # Запуск новых контейнеров
     - docker-compose up -d
 
-    # Очистка
     - docker system prune -f
   dependencies:
     - build
