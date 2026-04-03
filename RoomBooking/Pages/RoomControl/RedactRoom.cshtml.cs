@@ -100,12 +100,12 @@ namespace RoomBooking.Pages.RoomControl
             var newVersion = entryVersion + 1;
 
             const string query = @"
-                UPDATE prod.""Rooms"" 
-                SET ""Description"" = @description, 
-                    ""Address"" = @address, 
-                    ""PricePerHour"" = @pricePerHour, 
-                    ""version"" = @newVersion 
-                WHERE ""RoomId"" = @roomId AND ""version"" = @currentVersion";
+                UPDATE prod.rooms
+                SET description = @description, 
+                    address = @address, 
+                    priceperhour = @pricePerHour, 
+                    version= @newVersion 
+                WHERE roomid = @roomId AND version = @currentVersion";
 
             try
             {
