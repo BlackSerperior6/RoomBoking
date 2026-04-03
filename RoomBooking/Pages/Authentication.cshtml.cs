@@ -29,7 +29,7 @@ namespace RoomBooking.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string query = $"SELECT \"UserId\", \"PasswordHash\" from \"Users\" WHERE \"Login\" = @login;";
+            string query = $"SELECT \"UserId\", \"PasswordHash\" from prod.\"Users\" WHERE \"Login\" = @login;";
 
             try
             {

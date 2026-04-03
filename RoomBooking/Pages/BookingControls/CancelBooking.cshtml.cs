@@ -28,8 +28,8 @@ namespace RoomBooking.Pages.BookingControls
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string userCheckQuery = "SELECT * FROM \"Bookings\" WHERE \"BookingId\" = @bookingId;";
-            string cancelBookingQuery = "DELETE FROM \"Bookings\" WHERE \"BookingId\" = @bookingId;";
+            string userCheckQuery = "SELECT * FROM prod.\"Bookings\" WHERE \"BookingId\" = @bookingId;";
+            string cancelBookingQuery = "DELETE FROM prod.\"Bookings\" WHERE \"BookingId\" = @bookingId;";
 
             try
             {

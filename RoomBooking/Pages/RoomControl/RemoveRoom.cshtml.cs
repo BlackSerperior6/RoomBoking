@@ -45,7 +45,7 @@ namespace RoomBooking.Pages.RoomControl
         /// </returns>
         public async Task<IActionResult> OnPostAsync()
         {
-            string query = "DELETE FROM \"Rooms\" WHERE \"RoomId\" = @id AND \"OwnerId\" = @ownerId";
+            string query = "DELETE FROM prod.\"Rooms\" WHERE \"RoomId\" = @id AND \"OwnerId\" = @ownerId";
 
             try
             {

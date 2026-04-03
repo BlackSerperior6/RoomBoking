@@ -18,7 +18,7 @@ namespace RoomBooking.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            string query = "SELECT * FROM \"Rooms\"";
+            string query = "SELECT * FROM prod.\"Rooms\"";
 
             try
             {

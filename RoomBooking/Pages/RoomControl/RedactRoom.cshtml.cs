@@ -37,7 +37,7 @@ namespace RoomBooking.Pages.RoomControl
 
         public async Task<IActionResult> OnGetAsync(long roomId)
         {
-            string query = "SELECT * FROM \"Rooms\" WHERE \"RoomId\" = @roomId AND \"OwnerId\" = @ownerId";
+            string query = "SELECT * FROM prod.\"Rooms\" WHERE \"RoomId\" = @roomId AND \"OwnerId\" = @ownerId";
 
             try
             {
@@ -87,7 +87,6 @@ namespace RoomBooking.Pages.RoomControl
                 return Page();
             }
 
-            // Get data from session using session service
             var roomIdString = _sessionService.GetString("RoomId");
             var entryVersionString = _sessionService.GetString("EntryVersion");
 
@@ -98,11 +97,10 @@ namespace RoomBooking.Pages.RoomControl
                 return Page();
             }
 
-            // Build query with optimistic concurrency
             var newVersion = entryVersion + 1;
 
             const string query = @"
-                UPDATE ""Rooms"" 
+                UPDATE prod.""Rooms"" 
                 SET ""Description"" = @description, 
                     ""Address"" = @address, 
                     ""PricePerHour"" = @pricePerHour, 
@@ -134,7 +132,6 @@ namespace RoomBooking.Pages.RoomControl
                     });
                 }
 
-                // Clear session data after successful update
                 _sessionService.Remove("RoomId");
                 _sessionService.Remove("EntryVersion");
 
