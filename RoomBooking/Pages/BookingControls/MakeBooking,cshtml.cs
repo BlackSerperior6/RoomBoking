@@ -35,8 +35,8 @@ namespace RoomBooking.Pages.BookingControls
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string selectQuery = $"SELECT * FROM prod.\"Bookings\" WHERE \"RoomId\" = @roomId AND \"StartTime\" < @endTime AND \"EndTime\" > @startTime FOR UPDATE;";
-            string insertQuery = $"INSERT INTO prod.\"Bookings\" (\"BookingId\", \"UserId\", \"RoomId\", \"StartTime\", \"EndTime\") VALUES (DEFAULT, @userID, @roomId, @startTime, @endTime);";
+            string selectQuery = $"SELECT * FROM prod.bookings WHERE roomid = @roomId AND starttime < @endTime AND endtime > @startTime FOR UPDATE;";
+            string insertQuery = $"INSERT INTO prod.bookings (bookingId, userid, roomid, starttime, endtime) VALUES (DEFAULT, @userID, @roomId, @startTime, @endTime);";
 
             try
             {

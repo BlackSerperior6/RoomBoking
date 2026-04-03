@@ -27,7 +27,7 @@ namespace RoomBooking.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string query = "INSERT INTO prod.users (userId, login, passwordHash) VALUES (DEFAULT, @login, @passwordHash)";
+            string query = "INSERT INTO prod.users (userId, login, passwordhash) VALUES (DEFAULT, @login, @passwordHash)";
 
             try
             {

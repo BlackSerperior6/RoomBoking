@@ -39,8 +39,8 @@ namespace RoomBooking.Pages
             SuccessMessage = successMessage;
             ErrorMessage = errorMessage;
 
-            string roomsQuery = "SELECT * FROM prod.\"Rooms\" WHERE \"OwnerId\" = @ownerId";
-            string bookingQuery = "SELECT * FROM prod.\"Bookings\" WHERE \"UserId\" = @userId";
+            string roomsQuery = "SELECT * FROM prod.rooms WHERE ownerid = @ownerId";
+            string bookingQuery = "SELECT * FROM prod.bookings WHERE userid = @userId";
 
             try
             {

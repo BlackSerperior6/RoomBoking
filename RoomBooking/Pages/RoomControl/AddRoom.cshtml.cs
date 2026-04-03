@@ -63,8 +63,8 @@ namespace RoomBooking.Pages.RoomControl
         /// </returns>
         public async Task<IActionResult> OnPostAsync()
         {
-            string query = $"INSERT INTO prod.\"Rooms\" (\"RoomId\", \"Description\", \"Address\", " +
-                       $"\"PricePerHour\", \"OwnerId\", \"version\") VALUES (DEFAULT, @description, @address, @pricePerHour, @ownerId, DEFAULT);";
+            string query = $"INSERT INTO prod.rooms (roomid, description, address, " +
+                       $"priceperhour, ownerid, version) VALUES (DEFAULT, @description, @address, @pricePerHour, @ownerId, DEFAULT);";
 
             try
             {

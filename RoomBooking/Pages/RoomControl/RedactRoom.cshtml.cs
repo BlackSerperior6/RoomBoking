@@ -37,7 +37,7 @@ namespace RoomBooking.Pages.RoomControl
 
         public async Task<IActionResult> OnGetAsync(long roomId)
         {
-            string query = "SELECT * FROM prod.\"Rooms\" WHERE \"RoomId\" = @roomId AND \"OwnerId\" = @ownerId";
+            string query = "SELECT * FROM prod.rooms WHERE roomid = @roomId AND ownerid = @ownerId";
 
             try
             {
