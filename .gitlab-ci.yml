@@ -48,9 +48,9 @@ test:
 
 prodmigrations:
   stage: prodmigrations
-  image: flyway/flyway:${FLYWAY_VERSION}-alpine
+  image: flyway/flyway:${FLYWAY_VERSION}
   script:
-      - -url="jdbc:postgresql://localhost:5432/RoomBooking" -user="Booker" -password="$DP_LIB_PASSWORD" -schemas="prod" -table="prod_schema_history" -locations="filesystem:./Migrations/Prod" migrate
+      - flyway -url="jdbc:postgresql://localhost:5432/RoomBooking" -user="Booker" -password="$DP_LIB_PASSWORD" -schemas="prod" -table="prod_schema_history" -locations="filesystem:./Migrations/Prod" migrate
   only:
     - master
 
