@@ -144,10 +144,10 @@ sonar:
   stage: sonar
   image: mcr.microsoft.com/dotnet/sdk:10.0
   script:
-    -  dotnet tool restore
-    -  dotnet dotnet-sonarscanner begin /k:\"RoomBooking\" /d:sonar.token=\"$SONAR_TOKEN\" /d:\"sonar.host.url=$SONAR_HOST_URL\"
-    -  dotnet build
-    -  dotnet dotnet-sonarscanner end /d:sonar.token=\"$SONAR_TOKEN\"
+    -  "dotnet tool restore"
+    -  "dotnet dotnet-sonarscanner begin /k:\"RoomBooking\" /d:sonar.token=\"$SONAR_TOKEN\" /d:\"sonar.host.url=$SONAR_HOST_URL\" "
+    -  "dotnet build"
+    -  "dotnet dotnet-sonarscanner end /d:sonar.token=\"$SONAR_TOKEN\""  
   cache:
     policy: pull-push
     key: sonar-cache-$CI_COMMIT_REF_SLUG
