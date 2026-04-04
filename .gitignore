@@ -4,3 +4,5 @@ RoomBooking/publish/
 
 RoomBooking.Tests/bin/
 RoomBooking.Tests/obj/
+RoomBooking.UITests/bin/
+RoomBooking.UITests/obj/

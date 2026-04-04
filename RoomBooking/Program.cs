@@ -8,7 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
 
-// Register user context
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContextWrapper, UserContext>();
 
