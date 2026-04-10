@@ -1,6 +1,7 @@
 stages:
   - build
   - test
+  - uiTest
   - prodmigrations
   - devmigrations
   - testmigrations
@@ -28,6 +29,7 @@ build:
   artifacts:
     paths:
       - RoomBooking.Tests/bin/Release
+      - RoomBooking.UITests/bin/Release
       - RoomBooking/publish
     expire_in: 2 hour
   only:
@@ -40,6 +42,16 @@ test:
     - if [ -z "$DP_LIB_PASSWORD" ]; then echo "DP_LIB_PASSWORD is not set"; exit 1; fi
   script:
     - dotnet test RoomBooking.Tests/bin/Release/net10.0/RoomBooking.Tests.dll --no-build
+  dependencies:
+    - build
+  only:
+    - master
+
+uiTest:
+  stage: uiTest
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  script:
+    - dotnet test RoomBooking.UITests/bin/Debug/net10.0/RoomBooking.UITests.dll --no-build
   dependencies:
     - build
   only:
