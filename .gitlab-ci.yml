@@ -51,7 +51,7 @@ uiTest:
   stage: uiTest
   image: mcr.microsoft.com/dotnet/sdk:10.0
   script:
-    - dotnet test RoomBooking.UITests/bin/Debug/net10.0/RoomBooking.UITests.dll --no-build
+    - dotnet test RoomBooking.UITests/bin/Release/net10.0/RoomBooking.UITests.dll --no-build
   dependencies:
     - build
   only:
