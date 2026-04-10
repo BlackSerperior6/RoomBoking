@@ -30,6 +30,7 @@ build:
     paths:
       - RoomBooking.Tests/bin/Release
       - RoomBooking.UITests/bin/Release
+      - RoomBooking/obj/Release
       - RoomBooking/publish
     expire_in: 2 hour
   only:
