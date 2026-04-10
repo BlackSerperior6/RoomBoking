@@ -1,0 +1,100 @@
+using Microsoft.Playwright;
+
+namespace RoomBooking.UITests;
+
+public class RemoveRoomTest : IAsyncLifetime
+{
+    private IPlaywright _playwright;
+    private IBrowser _browser;
+    private CustomWebApplicationFactory _factory;
+    private string _baseUrl;
+
+    public async Task InitializeAsync()
+    {
+        _factory = new CustomWebApplicationFactory();
+        _baseUrl = _factory.BaseUrl;
+        
+        await WaitForServerReady();
+        
+        _playwright = await Playwright.CreateAsync();
+
+        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+        {
+            Headless = true,
+            Args = new[] { "--no-sandbox" }
+        });
+    }
+
+    private async Task WaitForServerReady()
+    {
+        using var client = new HttpClient();
+
+        var maxAttempts = 10;
+
+        for (int i = 0; i < maxAttempts; i++)
+        {
+            try
+            {
+                var response = await client.GetAsync($"{_baseUrl}");
+
+                if (response.IsSuccessStatusCode)
+                    return;
+            }
+            catch
+            {
+                await Task.Delay(500);
+            }
+        }
+
+        throw new Exception("Server failed to start");
+    }
+
+    public async Task DisposeAsync()
+    {
+        _playwright?.Dispose();
+
+        await _browser?.CloseAsync();
+        await (ValueTask)_factory?.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task RemoveRoomSuccessTest()
+    {
+        _factory.SetupMoq();
+        var page = await _browser.NewPageAsync();
+        
+        await page.GotoAsync($"{_baseUrl}/RoomControl/AddRoom");
+        
+        await page.FillAsync("#RoomId", "2");
+        
+        await page.ClickAsync("button[type=submit]");
+        
+        await page.WaitForURLAsync(url => url.Contains("/Profile"));
+        await page.WaitForSelectorAsync("#SuccessMessage");
+
+        var successMessage = await page.TextContentAsync("#SuccessMessage");
+        Assert.Contains("Комната была успешно удалена", successMessage);
+    }
+
+    [Fact]
+    public async Task RemoveRoomFailureTest()
+    {
+        _factory.SetupMoq(true);
+        var page = await _browser.NewPageAsync();
+
+        await page.GotoAsync($"{_baseUrl}/RoomControl/RemoveRoom");
+
+        await page.FillAsync("#RoomId", "2");
+
+        await page.ClickAsync("button[type=submit]");
+
+        await page.WaitForSelectorAsync("#ErrorMessage");
+
+        Assert.Contains("/AddRoom", page.Url);
+
+        var errorMessage = await page.TextContentAsync("#ErrorMessage");
+        Assert.Contains("Ошибка при выполнении запроса", errorMessage);
+    }
+
+
+}

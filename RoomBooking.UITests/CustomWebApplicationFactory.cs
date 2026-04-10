@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -5,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using RoomBooking.Interfaces;
-using RoomBooking.Wrappers;
 
 namespace RoomBooking.UITests;
 
@@ -32,10 +32,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             webHost.UseKestrel();
         });
 
+        _mockUserContext.Setup(x => x.GetCurrentUserId()).Returns(12345);
+
         _host = builder.Build();
         _host.Start();
-
-        _mockUserContext.Setup(x => x.GetCurrentUserId()).Returns(12345);
         
         return _host;
     }
@@ -46,13 +46,22 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         {
             var dbFactoryDescriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(IDatabaseConnectionFactory));
+
             if (dbFactoryDescriptor != null)
                 services.Remove(dbFactoryDescriptor);
             
             var userContextDescriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(IUserContextWrapper));
+
             if (userContextDescriptor != null)
                 services.Remove(userContextDescriptor);
+            
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Test";
+                options.DefaultChallengeScheme = "Test";
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", opts => { });
             
             services.AddScoped(_ => _mockConnectionFactory.Object);
             services.AddScoped(_ => _mockUserContext.Object);
@@ -70,15 +79,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         return port;
     }
 
-    public void SetupAuthBypass()
-    {
-        _mockConnectionFactory.Setup(x => x.CreateConnection())
-            .Returns(_mockConnection.Object);
-
-        
-    }
-
-    public void SetupSuccessfulRoomCreation()
+    public void SetupMoq(bool setupFailure = false)
     {
         _mockConnectionFactory.Setup(x => x.CreateConnection())
             .Returns(_mockConnection.Object);
@@ -86,26 +87,12 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         _mockConnection.Setup(x => x.CreateCommand(It.IsAny<string>()))
             .Returns(_mockCommand.Object);
         
-        _mockCommand.Setup(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
-        
-        _mockCommand.Setup(x => x.AddParameter(
-            It.IsAny<string>(),
-            It.IsAny<NpgsqlTypes.NpgsqlDbType>(),
-            It.IsAny<object>()))
-            .Verifiable();
-    }
-
-    public void SetupFailureRoomCreation()
-    {
-        _mockConnectionFactory.Setup(x => x.CreateConnection())
-            .Returns(_mockConnection.Object);
-        
-        _mockConnection.Setup(x => x.CreateCommand(It.IsAny<string>()))
-            .Returns(_mockCommand.Object);
-        
-        _mockCommand.Setup(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Npgsql.NpgsqlException("Connection failed"));
+        if (setupFailure)
+            _mockCommand.Setup(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Npgsql.NpgsqlException("Connection failed"));
+        else
+            _mockCommand.Setup(x => x.ExecuteNonQueryAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
         
         _mockCommand.Setup(x => x.AddParameter(
             It.IsAny<string>(),
