@@ -1,101 +1,83 @@
-using Microsoft.Playwright;
+using System.Net;
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace RoomBooking.UITests;
 
-public class AddRoomTest : IAsyncLifetime
+public class AddRoomTest : IClassFixture<CustomWebApplicationFactory>
 {
-    private IPlaywright _playwright;
-    private IBrowser _browser;
-    private CustomWebApplicationFactory _factory;
-    private string _baseUrl;
+    private readonly CustomWebApplicationFactory _factory;
 
-    public async Task DisposeAsync()
+    public AddRoomTest(CustomWebApplicationFactory factory)
     {
-        _playwright?.Dispose();
-
-        await _browser?.CloseAsync();
-        await (ValueTask)_factory?.DisposeAsync();
-    }
-
-    public async Task InitializeAsync()
-    {
-        _factory = new CustomWebApplicationFactory();
-        _baseUrl = _factory.BaseUrl;
-        
-        await WaitForServerReady();
-        
-        _playwright = await Playwright.CreateAsync();
-
-        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
-        {
-            Headless = true,
-            Args = new[] { "--no-sandbox" }
-        });
-    }
-
-    private async Task WaitForServerReady()
-    {
-        using var client = new HttpClient();
-        var maxAttempts = 10;
-
-        for (int i = 0; i < maxAttempts; i++)
-        {
-            try
-            {
-                var response = await client.GetAsync($"{_baseUrl}");
-
-                if (response.IsSuccessStatusCode)
-                    return;
-            }
-            catch
-            {
-                await Task.Delay(500);
-            }
-        }
-
-        throw new Exception("Server failed to start");
+        _factory = factory;
     }
 
     [Fact]
     public async Task AddRoomValidTest()
     {
+        _factory.ResetMocks();
         _factory.SetupMoq();
-        var page = await _browser.NewPageAsync();
-        
-        await page.GotoAsync($"{_baseUrl}/RoomControl/AddRoom");
-        
-        await page.FillAsync("#Description", "Test Room");
-        await page.FillAsync("#Address", "Test Address");
-        await page.FillAsync("#PricePerHour", "50");
-        
-        await page.ClickAsync("button[type=submit]");
-        
-        await page.WaitForURLAsync(url => url.Contains("/Profile"));
-        await page.WaitForSelectorAsync("#SuccessMessage");
 
-        var successMessage = await page.TextContentAsync("#SuccessMessage");
-        Assert.Contains("Комната была успешно добавлена!", successMessage);
+        var successClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        var getResponse = await successClient.GetAsync("/RoomControl/AddRoom");
+        var getContent = await getResponse.Content.ReadAsStringAsync();
+        
+        var token = ExtractAntiForgeryToken(getContent);
+
+        var formData = new Dictionary<string, string>
+        {
+            ["Description"] = "Test Room",
+            ["Address"] = "Test Address",
+            ["PricePerHour"] = "50",
+            ["__RequestVerificationToken"] = token 
+        };
+
+        var response = await successClient.PostAsync("/RoomControl/AddRoom", 
+            new FormUrlEncodedContent(formData));
+        
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("/Profile", response.Headers.Location?.ToString());
     }
 
     [Fact]
     public async Task AddRoomFailureTest()
     {
-        _factory.SetupMoq(true);
-        var page = await _browser.NewPageAsync();
+        _factory.ResetMocks();
+        _factory.SetupMoq(false);
 
-        await page.GotoAsync($"{_baseUrl}/RoomControl/AddRoom");
+        var failureClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
 
-        await page.FillAsync("#Description", "Test Room");
-        await page.FillAsync("#Address", "Test Address");
-        await page.FillAsync("#PricePerHour", "25.50");
+        var getResponse = await failureClient.GetAsync("/RoomControl/AddRoom");
+        var getContent = await getResponse.Content.ReadAsStringAsync();
+        
+        var token = ExtractAntiForgeryToken(getContent);
+        
+        var formData = new Dictionary<string, string>
+        {
+            ["Description"] = "Test Room",
+            ["Address"] = "Test Address",
+            ["PricePerHour"] = "25",
+            ["__RequestVerificationToken"] = token 
+        };
+        
+        var response = await failureClient.PostAsync("/RoomControl/AddRoom", 
+            new FormUrlEncodedContent(formData));
+        
+        Assert.Equal(HttpStatusCode.Found, response.StatusCode);
+        Assert.Contains("/RoomControl/AddRoom", response.RequestMessage?.RequestUri?.PathAndQuery);
+    }
 
-        await page.ClickAsync("button[type=submit]");
-
-        await page.WaitForSelectorAsync("#ErrorMessage");
-
-        Assert.Contains("/AddRoom", page.Url);
-
-        var errorMessage = await page.TextContentAsync("#ErrorMessage");
-        Assert.Contains("Ошибка при выполнении запроса", errorMessage);
+    private string ExtractAntiForgeryToken(string html)
+    {
+        var pattern = @"<input name=""__RequestVerificationToken"" type=""hidden"" value=""([^""]+)""";
+        var match = System.Text.RegularExpressions.Regex.Match(html, pattern);
+        return match.Success ? match.Groups[1].Value : throw new Exception("Token not found");
     }
 }

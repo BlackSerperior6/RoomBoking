@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,31 +18,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     private readonly Mock<IDbConnectionWrapper> _mockConnection = new();
     private readonly Mock<IDbCommandWrapper> _mockCommand = new();
 
-    public string BaseUrl = "http://localhost:{0}";
-
-    private IHost _host;
-
-    protected override IHost CreateHost(IHostBuilder builder)
-    {
-        int port = GetRandomUnusedPort();
-
-        BaseUrl = string.Format(BaseUrl, port);
-
-        builder.ConfigureWebHost(webHost =>
-        {
-            webHost.UseUrls(BaseUrl);
-            webHost.UseKestrel();
-        });
-
-        _mockUserContext.Setup(x => x.GetCurrentUserId()).Returns(12345);
-
-        _host = builder.Build();
-        _host.Start();
-        
-        return _host;
-    }
-
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureTestServices(services =>
         {
@@ -56,27 +34,29 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             if (userContextDescriptor != null)
                 services.Remove(userContextDescriptor);
             
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = "Test";
-                options.DefaultChallengeScheme = "Test";
-            })
-            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", opts => { });
-            
             services.AddScoped(_ => _mockConnectionFactory.Object);
             services.AddScoped(_ => _mockUserContext.Object);
+        });
+
+        builder.ConfigureTestServices(services =>
+        {
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAssertion(_ => true)
+                    .Build();
+            });
         });
         
         builder.UseEnvironment("Development");
     }
 
-    private int GetRandomUnusedPort()
+    public void ResetMocks()
     {
-        var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
+        _mockConnectionFactory.Reset();
+        _mockUserContext.Reset();
+        _mockConnection.Reset();
+        _mockCommand.Reset();
     }
 
     public void SetupMoq(bool setupFailure = false)
