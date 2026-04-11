@@ -1,5 +1,6 @@
 using RoomBooking.Interfaces;
 
+//ы
 namespace RoomBooking.Services
 {
     public class SessionService : ISessionService
